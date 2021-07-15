@@ -9,35 +9,32 @@ const schedule = require('node-schedule');
 
 dotenv.config();
 
-var express = require('express');
-var app = express();
+const express = require('express');
+const app = express();
+const port = process.env.PORT || 3000;
 
-app.set('views', __dirname + '/views');
 app.set('view engine', 'ejs');
-app.engine('html', require('ejs').renderFile);
-app.use(express.urlencoded({extended:false}));
-app.use(express.json());
-
-
-var server = app.listen(3000, function(){
- console.log("Express server has started on port 3000")
-});
-
-app.use(express.static('public'));
+app.set('views', './views');
 
 
 app.get('/', (req, res) => {
-    res.send("EJS Example");
-})
+	res.render('index');
+});
 
+app.get('/addEvent', (req, res) => {
+	botEvent();
+	res.render('index', {msg : '업데이트 진행하였습니다.'});
+});
 
-
+app.listen(port, () => console.log(`Example app listening on port ${port}`));
 
 
 // @ Runs every weekday (Mon ~ Fri)  at 10:00
 const works = schedule.scheduleJob('00 00 10 * * 1-5', () => {
+	console.log('cansplex alarm!!!');
     botEvent();
 });
+
 // 대략 8시 부터 23시 까지 매 20분 마다.
 const dont_sleep = schedule.scheduleJob('*/20 23,0-14 * * *', () => {
     console.log("Don't Sleep!!");
@@ -48,7 +45,6 @@ const dont_sleep = schedule.scheduleJob('*/20 23,0-14 * * *', () => {
 
 function botEvent(){
 
-	// get datas 
 	const client = new google.auth.JWT( keys.client_email, null, keys.private_key,  ['https://www.googleapis.com/auth/spreadsheets'] );
 	client.authorize(function(err, tokens){
 	  if (err) {
@@ -59,8 +55,9 @@ function botEvent(){
 		gsrun(client);
 	  }
 	});
-	
+
 	const COMPARE_DAYS = 7; //비교날짜 (일주일)
+
 	const STRING_NUMBER = '번호';
 	const STRING_STATUS = '관리상태';
 	const STRING_NAME = '업체명';
@@ -230,6 +227,7 @@ function botEvent(){
 
 		await AND_NOTION(RESULT_DATA);
 	}
+
 
 	function AND_NOTION(RESULT_DATA){
 		
