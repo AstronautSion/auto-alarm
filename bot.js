@@ -11,12 +11,12 @@ dotenv.config();
 
 var express = require('express');
 var app = express();
-var session = require('express-session');
-var fs = require("fs")
 
 app.set('views', __dirname + '/views');
 app.set('view engine', 'ejs');
 app.engine('html', require('ejs').renderFile);
+app.use(express.urlencoded({extended:false}));
+app.use(express.json());
 
 
 var server = app.listen(3000, function(){
@@ -24,13 +24,14 @@ var server = app.listen(3000, function(){
 });
 
 app.use(express.static('public'));
-app.use(session({
- secret: '@#@$MYSIGN#@$#$',
- resave: false,
- saveUninitialized: true
-}));
 
-let router = require('./router/main')(app, fs, botEvent);
+
+app.get('/', (req, res) => {
+    res.send("EJS Example");
+})
+
+
+
 
 
 // @ Runs every weekday (Mon ~ Fri)  at 10:00
