@@ -6,7 +6,15 @@ const { Client } = require("@notionhq/client");
 const dotenv = require("dotenv");
 const http = require('http');
 const schedule = require('node-schedule');
+const express = require('express');
+const app = express();
+const port = process.env.PORT || 3000;
+
 dotenv.config();
+
+app.get('/', (req, res) => res.send('hello World!'))
+
+app.listen(port, () => console.log(`Example app listening on port ${port}`));
 
 
 // @ Runs every weekday (Mon ~ Fri)  at 10:00
