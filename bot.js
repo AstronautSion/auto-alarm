@@ -150,11 +150,6 @@ function botEvent(){
 			});
 		})();
 
-		// 날짜 비교
-		function _compareDate(date, ){
-		
-		}
-
 		function _makeDateString(row, KEYS_NAME ,MODIFY_DATA, ERROR_DATA, STRING_DATE){
 			let stringDate = row[KEYS_NAME];
 			if(
@@ -215,7 +210,8 @@ function botEvent(){
 					}else if(today > endDate){ //today가 endDate를 지났을경우
 						MODIFY_DATA.push({
 							target:r,
-							msg: STRINGS.modify
+							msg: STRINGS.modify,
+							type: STRING_DATE,
 						});
 					}
 				}
