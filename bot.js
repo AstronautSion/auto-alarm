@@ -9,7 +9,6 @@ const schedule = require('node-schedule');
 
 dotenv.config();
 console.log('time:', moment().format('YYYY-MM-DD hh:mm:ss'));
-
 const express = require('express');
 const app = express();
 const port = process.env.PORT || 3000;
@@ -44,9 +43,9 @@ const works = schedule.scheduleJob('00 00 13 * * MON-FRI', () => {
 });
 
 // 대략 9시 부터 18시 까지 매 20분 마다.
-const dont_sleep = schedule.scheduleJob('*/1 6-19 * * MON-FRI', () => {
+const dont_sleep = schedule.scheduleJob('*/1 12-19 * * MON-FRI', () => {
     console.log("Don't Sleep!!");
-	http.get('https://cansplex-alarm.herokuapp.com/');
+	http.get('http://cansplex-alarm.herokuapp.com/');
 });
 
 
