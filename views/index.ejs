@@ -10,10 +10,6 @@
     padding:0;
     margin:0;
     outline:none;
-    position:absolute;
-    top:50%;
-    left:50%;
-    transform:translateX(-50%) translateY(-50%);
     display:block;
     width:300px;
     height:50px;
@@ -31,24 +27,75 @@
 .button-update:hover{
     background-color:rgb(118, 54, 170);
 }
+.update-box{
+    position:absolute;
+    top:50%;
+    left:50%;
+    transform:translateX(-50%) translateY(-50%);
+}
+.update-box__title{
+    font-size:.875rem;
+    font-weight:400;
+    line-height:1.6;
+    text-align:center;
+    padding:1em 0;
+    color:#333;
+    display:block;
+}
+.update-box__password{
+    padding:0;
+    margin:0;
+    outline:none;
+    display:block;
+    width:300px;
+    height:50px;
+    padding:1em;
+    box-sizing:border-box;
+    font-size:14px;
+    font-weight:400;
+    border-radius: 3px;
+    margin:0 auto;
+    border:1px solid #ddd;
+}
     </style>
 </head>
 <body>
-    
-        <strong></strong>
-    
-        <button type="button" id="button-update" class="button-update">UPDATE DATA</button>
+    <form>
+        <div class="update-box">
+            <strong class="update-box__title">데이터를 업데이트 하기 위해서는<br>비밀번호가 필요합니다.</strong>
+            <input id="update-password" class="update-box__password" type="password" name="update-password" placeholder="비밀번호를 입력하세요." />
+            <button type="submit" id="button-update" class="button-update">UPDATE DATA</button>
+        </div>
+    </form>
     
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
     <script>
-        $('#button-update').on('click', function(){
-           $.ajax({
-               type:'GET',
-               url: '/addEvent',
-               success: function(result){
-                    console.log(result);
-               }
-           })
+        $('#button-update').on('click', function(e){
+            e.preventDefault();
+            if($('#update-password').val() == ''){
+                alert('비밀번호를 입력해주세요.');
+                $('#update-password').focus(); 
+                return false;
+            }
+
+            let datas = {
+                pwd: $('#update-password').val(),
+            }
+            console.log(datas);
+            
+            $.ajax({
+                type:'GET',
+                url: '/addEvent',
+                dataType: 'json',
+                data: datas,
+                success: function(result){
+                        console.log(result);
+                },
+                error: function(error){
+                    console.error(error);
+                }
+                
+            })
         });
     
     </script>

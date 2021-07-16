@@ -22,8 +22,14 @@ app.get('/', (req, res) => {
 });
 
 app.get('/addEvent', (req, res) => {
-	botEvent();
-	res.render('index', {msg : '업데이트 진행하였습니다.'});
+	if(req.query.pwd != '' && typeof(req.query.pwd) == 'string'){
+		if(req.query.pwd === process.env.PWD){
+			botEvent();
+			res.json({msg: '업데이트를 진행합니다.\n 업데이트 반영은 1~2분 정도 소요 될 수 있습니다.'})
+		}else{
+			res.json({msg: '비밀번호를 다시 확인해주세요.'})
+		}
+	}
 });
 
 app.listen(port, () => console.log(`Example app listening on port ${port}`));
