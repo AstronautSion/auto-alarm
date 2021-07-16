@@ -44,7 +44,7 @@ const works = schedule.scheduleJob('00 00 13 * * MON-FRI', () => {
 });
 
 // 대략 9시 부터 18시 까지 매 20분 마다.
-const dont_sleep = schedule.scheduleJob('0 0/1 6-15 * * MON-FRI', () => {
+const dont_sleep = schedule.scheduleJob('*/5 6-15 * * MON-FRI', () => {
     console.log("Don't Sleep!!");
 	http.get('https://cansplex-alarm.herokuapp.com/');
 });
