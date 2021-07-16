@@ -8,7 +8,7 @@ const http = require('http');
 const schedule = require('node-schedule');
 
 dotenv.config();
-console.log('time:', moment().format('YYYY-MM-DD'));
+console.log('time:', moment().format('YYYY-MM-DD hh:mm:ss'));
 
 const express = require('express');
 const app = express();
