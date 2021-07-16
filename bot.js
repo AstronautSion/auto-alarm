@@ -36,14 +36,15 @@ app.get('/addEvent', (req, res) => {
 app.listen(port, () => console.log(`Example app listening on port ${port}`));
 
 
-// @ Runs every weekday (Mon ~ Fri)  at 10:00
-const works = schedule.scheduleJob('00 00 10 * * MON-FRI', () => {
+// @ Runs every weekday (Mon ~ Fri)  at 10:00 
+// heroku server와 3시간정도 차이남
+const works = schedule.scheduleJob('00 00 13 * * MON-FRI', () => {
 	console.log('cansplex alarm!!!');
     botEvent();
 });
 
-// 대략 8시 부터 18시 까지 매 20분 마다.
-const dont_sleep = schedule.scheduleJob('0 0/20 8-18 * * MON-FRI', () => {
+// 대략 9시 부터 18시 까지 매 20분 마다.
+const dont_sleep = schedule.scheduleJob('0 0/1 6-15 * * MON-FRI', () => {
     console.log("Don't Sleep!!");
 	http.get('https://cansplex-alarm.herokuapp.com/');
 });
