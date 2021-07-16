@@ -151,15 +151,8 @@ function botEvent(){
 		})();
 
 		// 날짜 비교
-		function _compareDate(date){
-			let today = moment();
-			let endDate = moment(date);
-			// endDate부터 endDate 7일전 날 사이에 today가 포함된다면
-			if( today <= endDate && today >= endDate.subtract(COMPARE_DAYS,'days') ){
-				return moment.duration(today.diff(endDate)).asDays()
-			}else{
-				return false;	
-			}
+		function _compareDate(date, ){
+		
 		}
 
 		function _makeDateString(row, KEYS_NAME ,MODIFY_DATA, ERROR_DATA, STRING_DATE){
@@ -210,11 +203,19 @@ function botEvent(){
 			data_company.map(function(r){
 				let date = _makeDateString(r, KEY_NAME, MODIFY_DATA, ERROR_DATA, STRING_DATE);
 				if(date){
-					let resultData = _compareDate(date);
-					if(resultData){
+					let today = moment();
+					let endDate = moment(date);
+					// endDate부터 endDate 7일전 날 사이에 today가 포함된다면
+					if( today <= endDate && today >= endDate.subtract(COMPARE_DAYS,'days') ){
 						DATA.push({
 							target: r,
-							value : resultData
+							value : moment.duration(today.diff(endDate)).asDays()
+						});
+					
+					}else if(today > endDate){ //today가 endDate를 지났을경우
+						MODIFY_DATA.push({
+							target:r,
+							msg: STRINGS.modify
 						});
 					}
 				}
