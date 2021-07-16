@@ -280,30 +280,30 @@ function botEvent(){
 				return {
 					"알림일": {"type": "date","date": { "start": today }},
 					"작업완료": {  "type": "checkbox", "checkbox": false },
-					"업체명": { "type": "title", "title": [{ "type": "text", "text": { "content": dataItem[KEYS_NAME] } }]},
+					"업체명": { "type": "title", "title": [{ "type": "text", "text": { "content": String(dataItem[KEYS_NAME]) } }]},
 					"도메인 만료일": {"type": "date","date": { "start": _simpleChangeDateString(dataItem[KEYS_ENDDOMAIN]) }},
-					"담당자": {"type": "rich_text", "rich_text": [{ "type": "text", "text": { "content": dataItem[KEYS_MANAGE]}}]},
-					"비고": {"type": "rich_text", "rich_text": [{ "type": "text", "text": { "content": dataItem[KEYS_ETC] || '-' }}]},
+					"담당자": {"type": "rich_text", "rich_text": [{ "type": "text", "text": { "content": String(dataItem[KEYS_MANAGE]) }}]},
+					"비고": {"type": "rich_text", "rich_text": [{ "type": "text", "text": { "content": String(dataItem[KEYS_ETC]) || '-' }}]},
 				};
 			}
 			if(type == STRING_END_HOSTRING_DATE){
 				return {
 					"알림일": {"type": "date","date": { "start":  today }},
 					"작업완료": {  "type": "checkbox", "checkbox": false },
-					"업체명": { "type": "title", "title": [{ "type": "text", "text": { "content": dataItem[KEYS_NAME] } }]},
+					"업체명": { "type": "title", "title": [{ "type": "text", "text": { "content": String(dataItem[KEYS_NAME]) } }]},
 					"호스팅 만료일": {"type": "date","date": { "start": _simpleChangeDateString(dataItem[KEYS_ENDHOSTRING]) }},
-					"담당자": {"type": "rich_text", "rich_text": [{ "type": "text", "text": { "content": dataItem[KEYS_MANAGE] }}]},
-					"비고": {"type": "rich_text", "rich_text": [{ "type": "text", "text": { "content": dataItem[KEYS_ETC] || '-' }}]},
+					"담당자": {"type": "rich_text", "rich_text": [{ "type": "text", "text": { "content": String(dataItem[KEYS_MANAGE]) }}]},
+					"비고": {"type": "rich_text", "rich_text": [{ "type": "text", "text": { "content": String(dataItem[KEYS_ETC]) || '-' }}]},
 				}
 			}
 			if(type == STRING_END_COMPANY_DATE){
 				return {
 					"알림일": {"type": "date","date": { "start":  today }},
 					"작업완료": {  "type": "checkbox", "checkbox": false },
-					"업체명": { "type": "title", "title": [{ "type": "text", "text": { "content": dataItem[KEYS_NAME] } }]},
+					"업체명": { "type": "title", "title": [{ "type": "text", "text": { "content": String(dataItem[KEYS_NAME]) } }]},
 					"계약 만료일": {"type": "date","date": { "start": _simpleChangeDateString(dataItem[KEYS_ENDCOMPANY]) }},
-					"담당자": {"type": "rich_text", "rich_text": [{ "type": "text", "text": { "content": dataItem[KEYS_MANAGE] }}]},
-					"비고": {"type": "rich_text", "rich_text": [{ "type": "text", "text": { "content": dataItem[KEYS_ETC] || '-'  }}]},
+					"담당자": {"type": "rich_text", "rich_text": [{ "type": "text", "text": { "content": String(dataItem[KEYS_MANAGE]) }}]},
+					"비고": {"type": "rich_text", "rich_text": [{ "type": "text", "text": { "content": String(dataItem[KEYS_ETC]) || '-'  }}]},
 				}
 			}
 			if(type == STRING_LOG){
@@ -316,9 +316,9 @@ function botEvent(){
 					"알림일": {"type": "date","date": { "start": today }},
 					"작업완료": { "type": "checkbox", "checkbox": false },
 					"상태": { "select": {"name": status, "color": color }},
-					"업체명": { "type": "title", "title": [{ "type": "text", "text": { "content": dataItem[KEYS_NAME] } }]},
-					"비고": {"type": "rich_text", "rich_text": [{ "type": "text", "text": { "content": dataItem[KEYS_ETC] || '-' }}]},
-					"알림봇 메세지": {"type": "rich_text", "rich_text": [{ "type": "text", "text": { "content": data.msg }}]},
+					"업체명": { "type": "title", "title": [{ "type": "text", "text": { "content": String(dataItem[KEYS_NAME]) } }]},
+					"비고": {"type": "rich_text", "rich_text": [{ "type": "text", "text": { "content": String(dataItem[KEYS_ETC]) || '-' }}]},
+					"알림봇 메세지": {"type": "rich_text", "rich_text": [{ "type": "text", "text": { "content": String(data.msg) }}]},
 				}
 			}
 			
