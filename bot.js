@@ -44,7 +44,7 @@ const works = schedule.scheduleJob('00 00 10 * * 1-5', () => {
 // 대략 8시 부터 23시 까지 매 20분 마다.
 const dont_sleep = schedule.scheduleJob('*/20 23,0-14 * * *', () => {
     console.log("Don't Sleep!!");
-	http.get('http://cansplex-alarm.herokuapp.com/');
+	http.get('https://cansplex-alarm.herokuapp.com/');
 });
 
 
