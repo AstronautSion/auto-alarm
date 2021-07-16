@@ -4,8 +4,48 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <title>Cansplex alarm system</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@100;300;400;500;700;900&display=swap" rel="stylesheet">
     <style>
+    html, body{
+        margin:0;
+        padding:0;
+        font-family: 'Noto Sans KR', sans-serif;
+        width:100%;
+        height:100%;
+    }
+    /* body {
+        background : linear-gradient(132deg, #24c6dc, #3494e6, #3494e6, #07e8f8, #3494e6); 
+        background-size : 300% 300%;
+        animation : Gradient 30s ease-in-out infinite; 
+    } */
+        /* Animate Background*/
+    @keyframes Gradient {
+        0% {
+            background-position: 0% 50%
+        }
+    50% { 
+            background-position: 100% 50%
+        }
+    100% {
+        background-position: 0% 50%
+        }
+    }
+  
+    .bg{
+        position:absolute;
+        top:0;
+        left:0;
+        width:100%;
+        height:100%;
+        
+        opacity: 1;   
+    }
+    input, button{
+        font-family: 'Noto Sans KR', sans-serif;
+    }
 .button-update{
     padding:0;
     margin:0;
@@ -23,11 +63,14 @@
     margin:0 auto;
     cursor:pointer;
     border:0;
+    margin-top:.5em;
 }
 .button-update:hover{
     background-color:rgb(118, 54, 170);
+    transform:scale(1.015)
 }
 .update-box{
+    z-index: 1000;
     position:absolute;
     top:50%;
     left:50%;
@@ -39,7 +82,8 @@
     line-height:1.6;
     text-align:center;
     padding:1em 0;
-    color:#333;
+    margin-bottom:2em;
+    color:#111;
     display:block;
 }
 .update-box__password{
@@ -62,17 +106,22 @@
     display:block;
     text-align:center;
     padding:1em 0;
-    color:red;
+    color:#fff;
+    padding:.75em;
+    margin-top:2em;
+    background-color:rgba(0,0,0,.75);
+    box-sizing:border-box;
 }
     </style>
 </head>
 <body>
+    <div class="bg"></div>
     <form>
         <div class="update-box">
             <strong class="update-box__title">데이터를 업데이트 하기 위해서는<br>비밀번호가 필요합니다.</strong>
             <input id="update-password" class="update-box__password" type="password" name="update-password" placeholder="비밀번호를 입력하세요." />
             <button type="submit" id="button-update" class="button-update">UPDATE DATA</button>
-            <span class="info-area"></span>
+            <span class="info-area" style="opacity:0;"></span>
         </div>
     </form>
     
@@ -96,6 +145,7 @@
                 dataType: 'json',
                 data: datas,
                 success: function(result){
+                    $('.info-area').css({opacity:1})
                     $('.info-area').html(result.msg);
                 },
                 error: function(error){
