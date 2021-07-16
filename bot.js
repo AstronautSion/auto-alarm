@@ -23,7 +23,9 @@ app.get('/', (req, res) => {
 
 app.get('/addEvent', (req, res) => {
 	if(req.query.pwd != '' && typeof(req.query.pwd) == 'string'){
-		if(req.query.pwd === process.env.PWD){
+		console.log(req.query.pwd)
+
+		if($.trim(req.query.pwd) === process.env.PWD){
 			botEvent();
 			res.json({msg: '업데이트를 진행합니다.\n 업데이트 반영은 1~2분 정도 소요 될 수 있습니다.'})
 		}else{
