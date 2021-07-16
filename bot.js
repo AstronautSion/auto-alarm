@@ -290,7 +290,7 @@ function botEvent(){
 					"알림일": {"type": "date","date": { "start":  today }},
 					"작업완료": {  "type": "checkbox", "checkbox": false },
 					"업체명": { "type": "title", "title": [{ "type": "text", "text": { "content": dataItem[KEYS_NAME] } }]},
-					"호스팅 만료일": {"type": "date","date": { "start": _simpleChangeDateString(dataItem[KEYS_ENDDOMAIN]) }},
+					"호스팅 만료일": {"type": "date","date": { "start": _simpleChangeDateString(dataItem[KEYS_ENDHOSTRING]) }},
 					"담당자": {"type": "rich_text", "rich_text": [{ "type": "text", "text": { "content": dataItem[KEYS_MANAGE] }}]},
 					"비고": {"type": "rich_text", "rich_text": [{ "type": "text", "text": { "content": dataItem[KEYS_ETC] || '-' }}]},
 				}
@@ -300,7 +300,7 @@ function botEvent(){
 					"알림일": {"type": "date","date": { "start":  today }},
 					"작업완료": {  "type": "checkbox", "checkbox": false },
 					"업체명": { "type": "title", "title": [{ "type": "text", "text": { "content": dataItem[KEYS_NAME] } }]},
-					"계약 만료일": {"type": "date","date": { "start": _simpleChangeDateString(dataItem[KEYS_ENDDOMAIN]) }},
+					"계약 만료일": {"type": "date","date": { "start": _simpleChangeDateString(dataItem[KEYS_ENDCOMPANY]) }},
 					"담당자": {"type": "rich_text", "rich_text": [{ "type": "text", "text": { "content": dataItem[KEYS_MANAGE] }}]},
 					"비고": {"type": "rich_text", "rich_text": [{ "type": "text", "text": { "content": dataItem[KEYS_ETC] || '-'  }}]},
 				}
