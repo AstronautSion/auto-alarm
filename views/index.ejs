@@ -57,6 +57,13 @@
     margin:0 auto;
     border:1px solid #ddd;
 }
+.info-area{
+    font-size:.875rem;
+    display:block;
+    text-align:center;
+    padding:1em 0;
+    color:red;
+}
     </style>
 </head>
 <body>
@@ -65,6 +72,7 @@
             <strong class="update-box__title">데이터를 업데이트 하기 위해서는<br>비밀번호가 필요합니다.</strong>
             <input id="update-password" class="update-box__password" type="password" name="update-password" placeholder="비밀번호를 입력하세요." />
             <button type="submit" id="button-update" class="button-update">UPDATE DATA</button>
+            <span class="info-area"></span>
         </div>
     </form>
     
@@ -81,7 +89,6 @@
             let datas = {
                 pwd: $('#update-password').val(),
             }
-            console.log(datas);
             
             $.ajax({
                 type:'GET',
@@ -89,7 +96,7 @@
                 dataType: 'json',
                 data: datas,
                 success: function(result){
-                        console.log(result);
+                    $('.info-area').html(result.msg);
                 },
                 error: function(error){
                     console.error(error);
