@@ -172,6 +172,13 @@ function botEvent(){
 				return '20'+string[0]+'-'+string[1]+'-'+string[2];
 			}else{
 				// string 예외처리
+				if(stringDate == STRING_IN_PRODUCTION){ //제작중
+					INPRODUCTION_DATA.push({
+						target: row,
+						type: STRING_DATE,
+					});
+				}
+				
 				if(
 					stringDate != '없음' &&
 					stringDate != '모름' &&
@@ -189,12 +196,7 @@ function botEvent(){
 					});
 				}
 
-				if(stringDate == STRING_IN_PRODUCTION){ //제작중
-					INPRODUCTION_DATA.push({
-						target: row,
-						type: STRING_DATE,
-					});
-				}
+			
 				return null;
 			}
 		}
