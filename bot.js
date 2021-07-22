@@ -79,7 +79,7 @@ function botEvent(){
 	const STRINGS = {
 		empty: '데이터가 비어있습니다.',
 		wrong: '날짜 형식이 잘못되었습니다.',
-		modify: '관리 종료일이 이미 지났습니다. 확인 후 구글 시프레드시트를 수정해주세요.'
+		modify: '관리 종료일이 이미 지났습니다. 확인 후 구글 스프레드시트를 수정해주세요.'
 	}
 
 	let THEAD = null;
@@ -157,7 +157,6 @@ function botEvent(){
 				typeof(stringDate) != 'string' ||
 				stringDate == false
 			){
-				
 				MODIFY_DATA.push({
 					target: row,
 					msg: STRINGS.empty,
@@ -230,7 +229,6 @@ function botEvent(){
 			hosting : _checkDate(KEYS_ENDHOSTRING, STRING_END_HOSTRING_DATE) 
 		};
 
-		
 		BEFORE_DATA = JSON.parse(JSON.stringify(RESULT_DATA));
 
 		await AND_NOTION(RESULT_DATA);
@@ -318,11 +316,10 @@ function botEvent(){
 					"알림봇 메세지": {"type": "rich_text", "rich_text": [{ "type": "text", "text": { "content": String(data.msg) }}]},
 				}
 			}
-			
 		}
 		
 		function pushData(datas, stringType, db){
-			datas.map(function(r, i){
+			datas.map(function(r){
 				addItem(_createTableItem(stringType, r), db);	
 			});
 		}
@@ -343,8 +340,6 @@ function botEvent(){
 		setTimeout(function(){
 			pushData(RESULT_DATA.manage.modi, STRING_LOG, DB_LOG );
 			pushData(RESULT_DATA.manage.error, STRING_LOG, DB_LOG );		
-		}, 9000);	
-		
+		}, 9000);		
 	}
-
 }
