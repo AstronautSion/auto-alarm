@@ -73,6 +73,7 @@ function botEvent(){
 	const STRING_END_HOSTRING_DATE = '호스팅\n만료일';
 	const STRING_END_DOMAIN_DATE = '도메인\n만료일';
 	const STRING_END_COMPANY_DATE = '관리\n종료일';
+	const STRING_IN_PRODUCTION = '제작중';
 	const STRING_LOG = 'LOG';
 	const STRING_ETC = '비고';
 
@@ -150,7 +151,7 @@ function botEvent(){
 			});
 		})();
 
-		function _makeDateString(row, KEYS_NAME ,MODIFY_DATA, ERROR_DATA, STRING_DATE){
+		function _makeDateString(row, KEYS_NAME ,MODIFY_DATA, ERROR_DATA, STRING_DATE ,INPRODUCTION_DATA){
 			let stringDate = row[KEYS_NAME];
 			if(
 				stringDate == '' ||
@@ -176,6 +177,7 @@ function botEvent(){
 					stringDate != '모름' &&
 					stringDate != '병원자체관리' &&
 					stringDate != '가상서버' &&
+					stringDate != '서비스' &&
 					stringDate != '종료시까지'
 				){
 					// 그외 나머지는 ERROR 처리
@@ -185,17 +187,25 @@ function botEvent(){
 						type: STRING_DATE,
 					});
 				}
+
+				if(stringDate == STRING_IN_PRODUCTION){ //제작중
+					INPRODUCTION_DATA.push({
+						target: row,
+						type: STRING_DATE,
+					});
+				}
 				return null;
 			}
 		}
 		
-		function _checkDate(KEY_NAME,STRING_DATE){
+		function _checkDate(KEYS_NAME,STRING_DATE){
 			const DATA = [];
 			const ERROR_DATA = [];
 			const MODIFY_DATA = [];
+			const INPRODUCTION_DATA = [];
 
 			data_company.map(function(r){
-				let date = _makeDateString(r, KEY_NAME, MODIFY_DATA, ERROR_DATA, STRING_DATE);
+				let date = _makeDateString(r, KEYS_NAME, MODIFY_DATA, ERROR_DATA, STRING_DATE, INPRODUCTION_DATA);
 				if(date){
 					let today = moment();
 					let endDate = moment(date);
@@ -220,17 +230,17 @@ function botEvent(){
 				data: DATA, 
 				error: ERROR_DATA,
 				modi: MODIFY_DATA,
+				inproduction: INPRODUCTION_DATA,
 			};
 		}
 
 		let RESULT_DATA = {
-			manage :  _checkDate(KEYS_ENDCOMPANY, STRING_END_COMPANY_DATE),
+			manage : _checkDate(KEYS_ENDCOMPANY, STRING_END_COMPANY_DATE),
 			domain : _checkDate(KEYS_ENDDOMAIN, STRING_END_DOMAIN_DATE),
-			hosting : _checkDate(KEYS_ENDHOSTRING, STRING_END_HOSTRING_DATE) 
+			hosting : _checkDate(KEYS_ENDHOSTRING, STRING_END_HOSTRING_DATE),
 		};
 
 		BEFORE_DATA = JSON.parse(JSON.stringify(RESULT_DATA));
-
 		await AND_NOTION(RESULT_DATA);
 	}
 
@@ -241,6 +251,7 @@ function botEvent(){
 		const DB_DOMAIN = process.env.NOTION_DATABASE_ID_DOMAIN;
 		const DB_HOSTRING = process.env.NOTION_DATABASE_ID_HOSTRING;
 		const DB_ENDCOMPANY = process.env.NOTION_DATABASE_ID_ENDCOMPANY;
+		const DB_INPRODUCTION = process.env.NOTION_DATABASE_ID_INPRODUCTION;
 		const DB_LOG = process.env.NOTION_DATABASE_ID_LOG;
 
 		async function addItem(data, database_id) {
@@ -296,7 +307,7 @@ function botEvent(){
 					"알림일": {"type": "date","date": { "start":  today }},
 					"작업완료": {  "type": "checkbox", "checkbox": false },
 					"업체명": { "type": "title", "title": [{ "type": "text", "text": { "content": String(dataItem[KEYS_NAME]) } }]},
-					"계약 만료일": {"type": "date","date": { "start": _simpleChangeDateString(dataItem[KEYS_ENDCOMPANY]) }},
+					"계약 만료일": {"type": "date","date": { "start": _simpleChangeDateString(dataItem[KEYS_ENDCOMPANY]) || '0000.00.00' }},
 					"담당자": {"type": "rich_text", "rich_text": [{ "type": "text", "text": { "content": String(dataItem[KEYS_MANAGE]) }}]},
 					"비고": {"type": "rich_text", "rich_text": [{ "type": "text", "text": { "content": String(dataItem[KEYS_ETC]) || '-'  }}]},
 				}
@@ -316,6 +327,15 @@ function botEvent(){
 					"알림봇 메세지": {"type": "rich_text", "rich_text": [{ "type": "text", "text": { "content": String(data.msg) }}]},
 				}
 			}
+			if(type == STRING_IN_PRODUCTION){
+				return {
+					"알림일": {"type": "date","date": { "start":  today }},
+					"작업완료": {  "type": "checkbox", "checkbox": false },
+					"업체명": { "type": "title", "title": [{ "type": "text", "text": { "content": String(dataItem[KEYS_NAME]) } }]},
+					"담당자": {"type": "rich_text", "rich_text": [{ "type": "text", "text": { "content": String(dataItem[KEYS_MANAGE]) }}]},
+					"비고": {"type": "rich_text", "rich_text": [{ "type": "text", "text": { "content": String(dataItem[KEYS_ETC]) || '-'  }}]},
+				}
+			}
 		}
 		
 		function pushData(datas, stringType, db){
@@ -323,7 +343,7 @@ function botEvent(){
 				addItem(_createTableItem(stringType, r), db);	
 			});
 		}
-		
+		pushData(RESULT_DATA.manage.inproduction, STRING_IN_PRODUCTION, DB_INPRODUCTION);
 		pushData(RESULT_DATA.domain.data, STRING_END_DOMAIN_DATE, DB_DOMAIN);
 		pushData(RESULT_DATA.hosting.data, STRING_END_HOSTRING_DATE, DB_HOSTRING);
 		pushData(RESULT_DATA.manage.data, STRING_END_COMPANY_DATE, DB_ENDCOMPANY);
