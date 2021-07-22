@@ -178,6 +178,7 @@ function botEvent(){
 					stringDate != '병원자체관리' &&
 					stringDate != '가상서버' &&
 					stringDate != '서비스' &&
+					stringDate != STRING_IN_PRODUCTION &&
 					stringDate != '종료시까지'
 				){
 					// 그외 나머지는 ERROR 처리
