@@ -63,7 +63,7 @@ function botEvent(){
 	  }
 	});
 
-	const COMPARE_DAYS = 7; //비교날짜 (일주일)
+	const COMPARE_DAYS = 30; //비교날짜 (한달)
 
 	const STRING_NUMBER = '번호';
 	const STRING_STATUS = '관리상태';
