@@ -96,26 +96,25 @@ function botEvent(){
 
 	function _findKeyNumber(string){
 		let returnVal = null;
-		if(THEAD != null){
-			THEAD.map(function(r,i){ 
-				if(String(r) == string){
-					returnVal = i; 
-				}
-			});
-		}
+		
+		THEAD.map(function(r,i){ 
+			if(String(r) == string){
+				returnVal = i; 
+			}
+		});
+		
 		
 		return returnVal;
 	}
 
 	function _getThead(dataArr){
 		let arr = null;
-		if(dataArr != null){
-			dataArr.map(function(r){ 
-				if(r[0] == STRING_NUMBER){ 
-					arr = r;
-				} 
-			});
-		}
+		dataArr.map(function(r){ 
+			if(r[0] == STRING_NUMBER){ 
+				arr = r;
+			} 
+		});
+	
 		return arr;
 	}
 
