@@ -290,7 +290,7 @@ function botEvent(){
 			}
 			
 			let dataItem = data.target;
-			if(type == STRING_END_DOMAIN_DATE){
+			if(type == STRING_END_DOMAIN_DATE){ //도메인 종료
 				return {
 					"알림일": {"type": "date","date": { "start": today }},
 					"작업완료": {  "type": "checkbox", "checkbox": false },
@@ -300,7 +300,7 @@ function botEvent(){
 					"비고": {"type": "rich_text", "rich_text": [{ "type": "text", "text": { "content": String(dataItem[KEYS_ETC]) || '-' }}]},
 				};
 			}
-			if(type == STRING_END_HOSTRING_DATE){
+			if(type == STRING_END_HOSTRING_DATE){ //호스팅 종료
 				return {
 					"알림일": {"type": "date","date": { "start":  today }},
 					"작업완료": {  "type": "checkbox", "checkbox": false },
@@ -310,7 +310,7 @@ function botEvent(){
 					"비고": {"type": "rich_text", "rich_text": [{ "type": "text", "text": { "content": String(dataItem[KEYS_ETC]) || '-' }}]},
 				}
 			}
-			if(type == STRING_END_COMPANY_DATE){
+			if(type == STRING_END_COMPANY_DATE){ // 유지보수 종료
 				return {
 					"알림일": {"type": "date","date": { "start":  today }},
 					"작업완료": {  "type": "checkbox", "checkbox": false },
@@ -320,16 +320,16 @@ function botEvent(){
 					"비고": {"type": "rich_text", "rich_text": [{ "type": "text", "text": { "content": String(dataItem[KEYS_ETC]) || '-'  }}]},
 				}
 			}
-			if(type == STRING_LOG){
+			if(type == STRING_LOG){ // 
 				let status = '';
 				let color = 'default';
-				if( data.type == STRING_END_DOMAIN_DATE){ status = '도메인 만료'; color = 'yellow';}
-				else if( data.type == STRING_END_HOSTRING_DATE ){ status = '호스팅 만료';  color = 'orange';}
-				else if( data.type == STRING_END_COMPANY_DATE ){ status = '계약 만료'; color = 'red';}
+				if( data.type == STRING_END_DOMAIN_DATE){ status = '도메인 만료';}
+				else if( data.type == STRING_END_HOSTRING_DATE ){ status = '호스팅 만료';}
+				else if( data.type == STRING_END_COMPANY_DATE ){ status = '계약 만료';}
 				return {
 					"알림일": {"type": "date","date": { "start": today }},
 					"작업완료": { "type": "checkbox", "checkbox": false },
-					"상태": { "select": {"name": status, "color": color }},
+					"상태": { "select": {"name": status}},
 					"업체명": { "type": "title", "title": [{ "type": "text", "text": { "content": String(dataItem[KEYS_NAME]) } }]},
 					"비고": {"type": "rich_text", "rich_text": [{ "type": "text", "text": { "content": String(dataItem[KEYS_ETC]) || '-' }}]},
 					"알림봇 메세지": {"type": "rich_text", "rich_text": [{ "type": "text", "text": { "content": String(data.msg) }}]},
