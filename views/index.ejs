@@ -7,134 +7,430 @@
     <title>Cansplex alarm system</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@100;300;400;500;700;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapiscom/css2?family=Noto+Sans+KR:wght@100;300;400;500;700;900&display=swap" rel="stylesheet">
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    
+    <script src="//cdn.datatables.net/1.11.3/js/jquery.dataTables.min.js"></script>
+    <link rel="stylesheet" href="//cdn.datatables.net/1.11.3/css/jquery.dataTables.min.css" />
+    
     <style>
     html, body{
         margin:0;
         padding:0;
         font-family: 'Noto Sans KR', sans-serif;
+        font-size:16px;
+    }
+    .contents{
+        padding:100px 0;
+    }
+    table {
+        border-collapse: collapse;
+        border-spacing: 0;
+    }
+    .table{
+        border-top:1px solid #333;
         width:100%;
-        height:100%;
     }
-    .bg{
-        position:absolute;
-        top:0;
-        left:0;
-        width:100%;
-        height:100%;
-        
-        opacity: 1;   
+    .table th{
+        background-color:rgb(66, 71, 121);
+        color:#fff;
     }
-    input, button{
-        font-family: 'Noto Sans KR', sans-serif;
+    .table th,
+    .table td{
+        padding:5px;
+        font-size:14px;
+        border-bottom:1px solid #eee;
     }
-.button-update{
-    padding:0;
-    margin:0;
-    outline:none;
-    display:block;
-    width:300px;
-    height:50px;
-    line-height:50px;
-    text-align:center;
-    font-size:14px;
-    font-weight:400;
-    background-color:rgb(158, 40, 255);
-    color:#fff;
-    border-radius: 3px;
-    margin:0 auto;
-    cursor:pointer;
-    border:0;
-    margin-top:.5em;
-}
-.button-update:hover{
-    background-color:rgb(118, 54, 170);
-    transform:scale(1.015)
-}
-.update-box{
-    z-index: 1000;
-    position:absolute;
-    top:50%;
-    left:50%;
-    transform:translateX(-50%) translateY(-50%);
-}
-.update-box__title{
-    font-size:.875rem;
-    font-weight:400;
-    line-height:1.6;
-    text-align:center;
-    padding:1em 0;
-    margin-bottom:2em;
-    color:#111;
-    display:block;
-}
-.update-box__password{
-    padding:0;
-    margin:0;
-    outline:none;
-    display:block;
-    width:300px;
-    height:50px;
-    padding:1em;
-    box-sizing:border-box;
-    font-size:14px;
-    font-weight:400;
-    border-radius: 3px;
-    margin:0 auto;
-    border:1px solid #ddd;
-}
-.info-area{
-    font-size:.875rem;
-    display:block;
-    text-align:center;
-    padding:1em 0;
-    color:#fff;
-    padding:.75em;
-    margin-top:2em;
-    background-color:rgba(0,0,0,.75);
-    box-sizing:border-box;
-}
+    .wrapper{
+        max-width:1400px;
+        width:90%;
+        margin:0 auto;
+    }
+    .title{
+        font-size:1.5rem;
+        font-weight:600;
+    }
+    .field{
+        margin:30px 0;
+    }
+    
+    .dataTables_info{
+        display:none;
+    }
     </style>
 </head>
 <body>
-    <div class="bg"></div>
-    <form>
-        <div class="update-box">
-            <strong class="update-box__title">데이터를 업데이트 하기 위해서는<br>비밀번호가 필요합니다.</strong>
-            <input id="update-password" class="update-box__password" type="password" name="update-password" placeholder="비밀번호를 입력하세요." />
-            <button type="submit" id="button-update" class="button-update">UPDATE DATA</button>
-            <span class="info-area" style="opacity:0;"></span>
-        </div>
-    </form>
-    
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
-    <script>
-        $('#button-update').on('click', function(e){
-            e.preventDefault();
-            if($('#update-password').val() == ''){
-                alert('비밀번호를 입력해주세요.');
-                $('#update-password').focus(); 
-                return false;
-            }
-
-            let datas = {
-                pwd: $.trim($('#update-password').val()),
-            }
+    <div class="contents">
+        <div class="wrapper">
+            <div class="field">
+                <h2 class="title">유지보수 만료</h2>
+                <table class="table table-manage">
+                    <thead>
+                        <tr>
+                            <th>업체명</th>
+                            <th>계약 만료일</th>
+                            <th>담당자</th>
+                            <th>비고</th>
+                        </tr>
+                    </thead>
+                    <tbody id="manage"></tbody>
+                </table>
+            </div>
+            <div class="field">
+                <h2 class="title">도메인 만료</h2>
+                <table class="table table-domain">
+                    <thead>
+                        <tr>
+                            <th>업체명</th>
+                            <th>도메인 만료일</th>
+                            <th>담당자</th>
+                            <th>비고</th>
+                        </tr>
+                    </thead>
+                    <tbody id="domain"></tbody> 
+                </table>
+            </div>
+            <div class="field">
+                <h2 class="title">호스팅 만료</h2>
+                <table class="table table-hosting">
+                    <thead>
+                        <tr>
+                            <th>업체명</th>
+                            <th>호스팅 만료일</th>
+                            <th>담당자</th>
+                            <th>비고</th>
+                        </tr>
+                    </thead>
+                    <tbody id="hosting"></tbody>
+                </table>
+            </div>
+            <div class="field">
+                <h2 class="title">제작중</h2>
+                <table class="table table-inproduction">
+                    <thead>
+                        <tr>
+                            <th>업체명</th>
+                            <th>담당자</th>
+                            <th>비고</th>
+                        </tr>
+                    </thead>
+                    <tbody id="inproduction"></tbody>
+                </table>
+            </div>
+            <div class="field">
+                <h2 class="title">error</h2>
+                <table class="table table-error">
+                    <thead>
+                        <tr>
+                            <th>상태</th>
+                            <th>업체명</th>
+                            <th>담당자</th>
+                            <th>비고</th>
+                            <th>알림</th>
+                        </tr>
+                    </thead>
+                    <tbody id="error"></tbody>
+                </table>
+            </div>
             
+        </div>    
+    </div>
+
+    <script>
+
+
+        $(document).ready(function(){
+           // createTableHead();
+            getDatas();
+        });
+        function createTableHead(){
+            $('.table thead').html(
+            `<th>번호</th><th>업체명</th><th>담당자</th><th>유형</th><th>계약일자</th>
+            <th>제작완료일</th><th>유료관리 시작일</th><th>관리 종료일</th><th>호스팅 만료일</th><th>도메인 만료일</th>
+            <th>SSL인증서 만료일</th><th>관리유형</th><th>월관리비</th><th>현재 관리개월</th><th>연관리비</th>
+            <th>현재 계약 총액</th><th>누적 관리개월</th><th>누적 계약 총액</th><th>입금액</th><th>관리상태</th>
+            <th>비고</th>`);
+        }
+
+        function getDatas(){
             $.ajax({
                 type:'GET',
                 url: '/addEvent',
                 dataType: 'json',
-                data: datas,
                 success: function(result){
-                    $('.info-area').css({opacity:1})
-                    $('.info-area').html(result.msg);
+                    // console.log(result);
+                    organizeData(result);
+                    $('.table').DataTable();
+                    //createTables(result);
+                    
                 },
                 error: function(error){
                     console.error(error);
                 }
-            })
-        });
+            });
+        }
+
+
+        // init datas
+        const COMPARE_DAYS = 30; //비교날짜 (한달)
+
+        const STRING_NUMBER = '번호';
+        const STRING_STATUS = '관리상태';
+        const STRING_NAME = '업체명';
+        const STRING_MANAGE = '담당자';
+        const STRING_STATUS_END = '중단';
+        const STRING_END_HOSTRING_DATE = '호스팅\n만료일';
+        const STRING_END_DOMAIN_DATE = '도메인\n만료일';
+        const STRING_END_COMPANY_DATE = '관리\n종료일';
+        const STRING_IN_PRODUCTION = '제작중';
+        const STRING_LOG = 'LOG';
+        const STRING_ETC = '비고';
+
+        const STRINGS = {
+            empty: '데이터가 비어있습니다.',
+            wrong: '날짜 형식이 잘못되었습니다.',
+            modify: '관리 종료일이 이미 지났습니다. 확인 후 구글 스프레드시트를 수정해주세요.'
+        }
+
+        let THEAD = null;
+        let KEYS_NUMBER = null;
+        let KEYS_NAME = null;
+        let KEYS_MANAGE = null;
+        let KEYS_STATUS = null;
+        let KEYS_ENDCOMPANY = null;
+        let KEYS_ENDHOSTRING = null;
+        let KEYS_ENDDOMAIN = null;
+        let KEYS_ETC = null;
+
+            
+        function _findKeyNumber(string){
+            let returnVal = null;
+            THEAD.map(function(r,i){ 
+                if(String(r) == string){  returnVal = i; }
+            });
+            return returnVal;
+        }
+
+        function _getThead(dataArr){
+            let arr = null;
+            dataArr.map(function(r){ 
+                if(r[0] == STRING_NUMBER){ arr = r; } 
+            });
+            return arr;
+        }
+
+        function organizeData(data){
+            let dataArray = data.data.values;
+
+            let data_endCompany = []; //계약종료된 업체
+            let data_company  = []; //계약중인 업체
+
+            THEAD = _getThead(dataArray);
+            KEYS_NUMBER = _findKeyNumber(STRING_NUMBER); //key 0 - 번호
+            KEYS_STATUS = _findKeyNumber(STRING_STATUS); //key 19 - 중단인지 아닌지
+            KEYS_NAME = _findKeyNumber(STRING_NAME); //key 1 - 업체명
+            KEYS_MANAGE = _findKeyNumber(STRING_MANAGE); // 담당자
+            KEYS_ENDCOMPANY = _findKeyNumber(STRING_END_COMPANY_DATE); //관리 종료일 key
+            KEYS_ENDHOSTRING = _findKeyNumber(STRING_END_HOSTRING_DATE); //호스팅 종료일 key
+            KEYS_ENDDOMAIN = _findKeyNumber(STRING_END_DOMAIN_DATE); //도메인 종료일 key
+            KEYS_ETC = _findKeyNumber(STRING_ETC); //비고
+
+            // 데이터 분기
+            (function(){
+                dataArray.map(function(r){
+                    if(r[KEYS_NUMBER] != STRING_NUMBER){
+                        if(r[KEYS_STATUS] == STRING_STATUS_END){ // 관리상태
+                            data_endCompany.push(r);	
+                        }else{
+                            data_company.push(r);
+                        }
+                    }
+                });
+            })();
+
+            function _makeDateString(row, KEYS_NAME ,MODIFY_DATA, ERROR_DATA, STRING_DATE ,INPRODUCTION_DATA){
+                let stringDate = row[KEYS_NAME];
+                if(
+                    stringDate == '' ||
+                    typeof(stringDate) != 'string' ||
+                    stringDate == false
+                ){
+                    MODIFY_DATA.push({
+                        target: row,
+                        msg: STRINGS.empty,
+                        type: STRING_DATE,
+                    });
+                    return null;
+                }
+
+                let string = stringDate.split('.');
+                
+                if(string[0] && string[1] && string[2]){ // YYYY-MM-DD 형식으로 변경
+                    return '20'+string[0]+'-'+string[1]+'-'+string[2];
+                }else{
+                    // string 예외처리
+                    if(stringDate == STRING_IN_PRODUCTION){ //제작중
+                        INPRODUCTION_DATA.push({
+                            target: row,
+                            type: STRING_DATE,
+                        });
+                    }
+                    
+                    if(
+                        stringDate != '없음' &&
+                        stringDate != '모름' &&
+                        stringDate != '병원자체관리' &&
+                        stringDate != '가상서버' &&
+                        stringDate != '서비스' &&
+                        stringDate != STRING_IN_PRODUCTION &&
+                        stringDate != '종료시까지'
+                    ){
+                        // 그외 나머지는 ERROR 처리
+                        ERROR_DATA.push({
+                            target: row,
+                            msg: STRINGS.wrong,
+                            type: STRING_DATE,
+                        });
+                    }
+
+                
+                    return null;
+                }
+            }
+
+            function _checkDate(KEYS_NAME,STRING_DATE){
+                const DATA = [];
+                const ERROR_DATA = [];
+                const MODIFY_DATA = [];
+                const INPRODUCTION_DATA = [];
+
+                data_company.map(function(r){
+                    let date = _makeDateString(r, KEYS_NAME, MODIFY_DATA, ERROR_DATA, STRING_DATE, INPRODUCTION_DATA);
+                    if(date){
+                        let today = moment();
+                        let endDate = moment(date);
+                        // endDate부터 endDate 7일전 날 사이에 today가 포함된다면
+                        if( today <= endDate && today >= endDate.subtract(COMPARE_DAYS,'days') ){
+                            DATA.push({
+                                target: r,
+                                value : moment.duration(today.diff(endDate)).asDays()
+                            });
+                        
+                        }else if(today > endDate){ //today가 endDate를 지났을경우
+                            MODIFY_DATA.push({
+                                target:r,
+                                msg: STRINGS.modify,
+                                type: STRING_DATE,
+                            });
+                        }
+                    }
+                });
+
+                return {
+                    data: DATA, 
+                    error: ERROR_DATA,
+                    modi: MODIFY_DATA,
+                    inproduction: INPRODUCTION_DATA,
+                };
+            }
+
+            let RESULT_DATA = {
+                manage : _checkDate(KEYS_ENDCOMPANY, STRING_END_COMPANY_DATE),
+                domain : _checkDate(KEYS_ENDDOMAIN, STRING_END_DOMAIN_DATE),
+                hosting : _checkDate(KEYS_ENDHOSTRING, STRING_END_HOSTRING_DATE),
+            };
+            
+            createTables(RESULT_DATA);
+        }
+
+        function createTables(RESULT_DATA){
+            let today = moment().format('YYYY-MM-DD');
+
+            function addTable(datas, stringType, targetIdString){
+                var html = '';
+                let tbodyData = [];
+                let finalHtml = '';
+                datas.map(function(r){
+                    
+                    let dataItem = r.target;
+                    if(stringType == STRING_END_DOMAIN_DATE){ //도메인 종료
+                        tbodyData = [
+                            String(dataItem[KEYS_NAME]), 
+                            String(dataItem[KEYS_ENDDOMAIN]), 
+                            String(dataItem[KEYS_MANAGE]), 
+                            String(dataItem[KEYS_ETC]),
+                        ];
+                    }
+                    if(stringType == STRING_END_HOSTRING_DATE){ //호스팅 종료
+                        tbodyData = [
+                            String(dataItem[KEYS_NAME]), 
+                            String(dataItem[KEYS_ENDHOSTRING]), 
+                            String(dataItem[KEYS_MANAGE]), 
+                            String(dataItem[KEYS_ETC]),
+                        ];
+                    }
+                    if(stringType == STRING_END_COMPANY_DATE){ //유지보수 종료
+                        tbodyData = [
+                            String(dataItem[KEYS_NAME]), 
+                            String(dataItem[KEYS_ENDCOMPANY]), 
+                            String(dataItem[KEYS_MANAGE]), 
+                            String(dataItem[KEYS_ETC]),
+                        ];
+                    }
+                    if(stringType == STRING_LOG){ // ERROR
+                        if( r.type == STRING_END_DOMAIN_DATE){ status = '도메인 만료';}
+                        else if( r.type == STRING_END_HOSTRING_DATE ){ status = '호스팅 만료';}
+                        else if( r.type == STRING_END_COMPANY_DATE ){ status = '계약 만료';}
+                        tbodyData = [
+                            status,
+                            String(dataItem[KEYS_NAME]), 
+                            String(dataItem[KEYS_MANAGE]), 
+                            String(dataItem[KEYS_ETC]),
+                            String(r.msg)
+                        ];
+                    }
+                    if(stringType == STRING_IN_PRODUCTION){ //제작중
+                        tbodyData = [
+                            String(dataItem[KEYS_NAME]), 
+                            String(dataItem[KEYS_MANAGE]), 
+                            String(dataItem[KEYS_ETC]),
+                        ];
+                    }
+                    createTbody(tbodyData);
+                });
+
+                function createTbody(data){
+                    finalHtml += '<tr>';
+                    data.map((v)=>{finalHtml +=`<td>${v}</td>`;});
+                    finalHtml += '</tr>';
+                    console.log(finalHtml);
+                }
+                
+                $(targetIdString).html(finalHtml);
+            }
+
+            addTable(RESULT_DATA.domain.data, STRING_END_DOMAIN_DATE, '#domain');
+            addTable(RESULT_DATA.hosting.data, STRING_END_HOSTRING_DATE, '#hosting');
+            addTable( RESULT_DATA.manage.data, STRING_END_COMPANY_DATE, '#manage');
+            addTable( RESULT_DATA.manage.inproduction, STRING_IN_PRODUCTION, '#inproduction');
+            
+            
+			let errorDatas = [
+                ...RESULT_DATA.domain.modi,
+			    ...RESULT_DATA.domain.error,
+			    ...RESULT_DATA.hosting.modi,
+			    ...RESULT_DATA.hosting.error, 
+			    ...RESULT_DATA.manage.modi,
+			    ...RESULT_DATA.manage.error
+            ];
+            console.log(errorDatas);
+            addTable( errorDatas, STRING_LOG, '#error');
+           
+            // addTable(  , STRING_IN_PRODUCTION, '#inproduction');
+        }
+        
     </script>
 </body>
 </html>

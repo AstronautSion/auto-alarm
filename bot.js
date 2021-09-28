@@ -2,7 +2,6 @@
 const moment = require("moment");
 const keys = require('./credentials.json');
 const { google, androidpublisher_v2 } = require("googleapis");
-const { Client } = require("@notionhq/client");
 const dotenv = require("dotenv");
 const http = require('http');
 const schedule = require('node-schedule');
@@ -22,36 +21,25 @@ app.get('/', (req, res) => {
 });
 
 app.get('/addEvent', (req, res) => {
-	if(req.query.pwd != '' && typeof(req.query.pwd) == 'string'){
-		if(String(req.query.pwd) === String(process.env.CANSPLEX_PWD) ){
-			botEvent();
-			res.json({msg: '업데이트를 진행합니다.\n 업데이트 반영은 1~2분 정도 소요 될 수 있습니다.'})
-		}else{
-			res.json({msg: '비밀번호를 다시 확인해주세요.'})
-		}
-	}
+	// res.json({msg: '비밀번호를 다시 확인해주세요.'})
+	botEvent(function(data){
+		res.json({data });
+	});
+	
+	// if(req.query.pwd != '' && typeof(req.query.pwd) == 'string'){
+	// 	if(String(req.query.pwd) === String(process.env.CANSPLEX_PWD) ){
+	// 		botEvent();
+	// 		res.json({msg: '업데이트를 진행합니다.\n 업데이트 반영은 1~2분 정도 소요 될 수 있습니다.'})
+	// 	}else{
+	// 		res.json({msg: '비밀번호를 다시 확인해주세요.'})
+	// 	}
+	// }
 });
 
 app.listen(port, () => console.log(`Example app listening on port ${port}`));
 
 
-// @ Runs every weekday (Mon ~ Fri)  at 10:00 
-// heroku server와 9시간정도 차이남
-const works = schedule.scheduleJob('00 00 1 * * MON-FRI', () => {
-	console.log('cansplex alarm!!!');
-    botEvent();
-});
-
-// 대략 9시 부터 18시 까지 매 20분 마다.
-const dont_sleep = schedule.scheduleJob('*/20 0-9 * * MON-FRI', () => {
-    console.log("Don't Sleep!!");
-	http.get('http://cansplex-alarm.herokuapp.com/');
-});
-
-
-
-function botEvent(){
-
+function botEvent(callback){
 	const client = new google.auth.JWT( keys.client_email, null, keys.private_key,  ['https://www.googleapis.com/auth/spreadsheets'] );
 	client.authorize(function(err, tokens){
 	  if (err) {
@@ -59,7 +47,9 @@ function botEvent(){
 		return;
 	  } else {
 		console.log('connected!!');
-		gsrun(client);
+		 gsrun(client).then((test) => {
+			callback(test.data);
+		});
 	  }
 	});
 
@@ -102,8 +92,6 @@ function botEvent(){
 				returnVal = i; 
 			}
 		});
-		
-		
 		return returnVal;
 	}
 
@@ -114,18 +102,17 @@ function botEvent(){
 				arr = r;
 			} 
 		});
-	
 		return arr;
 	}
 
 	async function gsrun(cl){
-		
 		const gsapi = google.sheets({version:'v4', auth: cl});
 		let spreadsheetId = process.env.GOOGLE_SPREADSHEETS_ID;
 		let range = '홈페이지 관리!A1:ZZ';
 		//let range = '홈페이지 관리!A1:U11';
 		const opt = { spreadsheetId, range, };
 		let data = await gsapi.spreadsheets.values.get(opt);
+		return data;
 		let dataArray = data.data.values;
 
 		let data_endCompany = []; //계약종료된 업체
@@ -140,7 +127,6 @@ function botEvent(){
 		KEYS_ENDHOSTRING = _findKeyNumber(STRING_END_HOSTRING_DATE); //호스팅 종료일 key
 		KEYS_ENDDOMAIN = _findKeyNumber(STRING_END_DOMAIN_DATE); //도메인 종료일 key
 		KEYS_ETC = _findKeyNumber(STRING_ETC); //비고
-
 
 		// 데이터 분기
 		(function(){
@@ -246,9 +232,8 @@ function botEvent(){
 			domain : _checkDate(KEYS_ENDDOMAIN, STRING_END_DOMAIN_DATE),
 			hosting : _checkDate(KEYS_ENDHOSTRING, STRING_END_HOSTRING_DATE),
 		};
-
-		BEFORE_DATA = JSON.parse(JSON.stringify(RESULT_DATA));
-		await AND_NOTION(RESULT_DATA);
+		console.log(RESULT_DATA)
+		return RESULT_DATA;
 	}
 
 
@@ -260,21 +245,26 @@ function botEvent(){
 		const DB_ENDCOMPANY = process.env.NOTION_DATABASE_ID_ENDCOMPANY;
 		const DB_INPRODUCTION = process.env.NOTION_DATABASE_ID_INPRODUCTION;
 		const DB_LOG = process.env.NOTION_DATABASE_ID_LOG;
-
-		async function addItem(data, database_id) {
-			try {
-				await notion.request({
-					path: "pages",
-					method: "POST",
-					body: {
-						parent: { database_id },
-						properties: data,
-					},
-				})
-				console.log("Success! Entry added.")
-			} catch (error) {
-				console.error(error.body, data);
-			}
+		const resultData = [];
+		
+		function addItem(data, database_id) {
+			resultData.push({
+				data: data,
+				database_id: database_id,
+			});
+			// try {
+			// 	await notion.request({
+			// 		path: "pages",
+			// 		method: "POST",
+			// 		body: {
+			// 			parent: { database_id },
+			// 			properties: data,
+			// 		},
+			// 	})
+			// 	console.log("Success! Entry added.")
+			// } catch (error) {
+			// 	console.error(error.body, data);
+			// }
 		}
 
 		let today = moment().format('YYYY-MM-DD');
@@ -356,17 +346,19 @@ function botEvent(){
 		pushData(RESULT_DATA.manage.data, STRING_END_COMPANY_DATE, DB_ENDCOMPANY);
 
 		// //수정요청 및 에러 데이터
-		setTimeout(function(){
+		//setTimeout(function(){
 			pushData(RESULT_DATA.domain.modi, STRING_LOG, DB_LOG );
 			pushData(RESULT_DATA.domain.error, STRING_LOG, DB_LOG );		
-		}, 3000);
-		setTimeout(function(){
+		//}, 3000);
+		//setTimeout(function(){
 			pushData(RESULT_DATA.hosting.modi, STRING_LOG, DB_LOG );
 			pushData(RESULT_DATA.hosting.error, STRING_LOG, DB_LOG );	
-		}, 6000);
-		setTimeout(function(){
+		//}, 6000);
+		//setTimeout(function(){
 			pushData(RESULT_DATA.manage.modi, STRING_LOG, DB_LOG );
 			pushData(RESULT_DATA.manage.error, STRING_LOG, DB_LOG );		
-		}, 9000);		
+		//}, 9000);		
+
+		return resultData;
 	}
 }
