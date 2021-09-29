@@ -5,38 +5,60 @@ const { google, androidpublisher_v2 } = require("googleapis");
 const dotenv = require("dotenv");
 const http = require('http');
 const schedule = require('node-schedule');
+const ip = require('request-ip');
 
 dotenv.config();
-console.log('time:', moment().format('YYYY-MM-DD hh:mm:ss'));
+// console.log('time:', moment().format('YYYY-MM-DD hh:mm:ss'));
 const express = require('express');
 const app = express();
 const port = process.env.PORT || 3000;
 
+app.use(express.static('public'));
+
 app.set('view engine', 'ejs');
 app.set('views', './views');
 
+// company ips Array
+const processIps = process.env.CNASPLEX_IPS || [];
+const myIp = processIps?.split(',');
+
 
 app.get('/', (req, res) => {
-	res.render('index');
+	if(checkIp(req)){
+		res.render('index');
+	}else{
+		res.render('Forbidden');
+	}
+	
 });
 
 app.get('/addEvent', (req, res) => {
-	// res.json({msg: '비밀번호를 다시 확인해주세요.'})
-	botEvent(function(data){
-		res.json({data });
-	});
-	
-	// if(req.query.pwd != '' && typeof(req.query.pwd) == 'string'){
-	// 	if(String(req.query.pwd) === String(process.env.CANSPLEX_PWD) ){
-	// 		botEvent();
-	// 		res.json({msg: '업데이트를 진행합니다.\n 업데이트 반영은 1~2분 정도 소요 될 수 있습니다.'})
-	// 	}else{
-	// 		res.json({msg: '비밀번호를 다시 확인해주세요.'})
-	// 	}
-	// }
+
+
+	if(checkIp(req)){
+		botEvent(function(data){
+			res.json({data });
+		});
+	}else{
+		res.json({msg: '외부 IP 차단.'})
+	}
 });
 
-app.listen(port, () => console.log(`Example app listening on port ${port}`));
+// '0,0,0,0' IPV4 setting
+app.listen(port, '0.0.0.0', () => console.log(`Example app listening on port ${port}`));
+
+
+function checkIp(req){
+	const clientIp = ip.getClientIp(req);
+	let check = false;
+	myIp.map((v) => {
+		if( clientIp == v){
+			check = true;
+		}
+	});
+	return check;
+}
+
 
 
 function botEvent(callback){
@@ -52,301 +74,13 @@ function botEvent(callback){
 		});
 	  }
 	});
-
-	const COMPARE_DAYS = 30; //비교날짜 (한달)
-
-	const STRING_NUMBER = '번호';
-	const STRING_STATUS = '관리상태';
-	const STRING_NAME = '업체명';
-	const STRING_MANAGE = '담당자';
-	const STRING_STATUS_END = '중단';
-	const STRING_END_HOSTRING_DATE = '호스팅\n만료일';
-	const STRING_END_DOMAIN_DATE = '도메인\n만료일';
-	const STRING_END_COMPANY_DATE = '관리\n종료일';
-	const STRING_IN_PRODUCTION = '제작중';
-	const STRING_LOG = 'LOG';
-	const STRING_ETC = '비고';
-
-	const STRINGS = {
-		empty: '데이터가 비어있습니다.',
-		wrong: '날짜 형식이 잘못되었습니다.',
-		modify: '관리 종료일이 이미 지났습니다. 확인 후 구글 스프레드시트를 수정해주세요.'
-	}
-
-	let THEAD = null;
-	let KEYS_NUMBER = null;
-	let KEYS_NAME = null;
-	let KEYS_MANAGE = null;
-	let KEYS_STATUS = null;
-	let KEYS_ENDCOMPANY = null;
-	let KEYS_ENDHOSTRING = null;
-	let KEYS_ENDDOMAIN = null;
-	let KEYS_ETC = null;
-
-
-	function _findKeyNumber(string){
-		let returnVal = null;
-		
-		THEAD.map(function(r,i){ 
-			if(String(r) == string){
-				returnVal = i; 
-			}
-		});
-		return returnVal;
-	}
-
-	function _getThead(dataArr){
-		let arr = null;
-		dataArr.map(function(r){ 
-			if(r[0] == STRING_NUMBER){ 
-				arr = r;
-			} 
-		});
-		return arr;
-	}
-
 	async function gsrun(cl){
 		const gsapi = google.sheets({version:'v4', auth: cl});
 		let spreadsheetId = process.env.GOOGLE_SPREADSHEETS_ID;
 		let range = '홈페이지 관리!A1:ZZ';
-		//let range = '홈페이지 관리!A1:U11';
 		const opt = { spreadsheetId, range, };
 		let data = await gsapi.spreadsheets.values.get(opt);
 		return data;
-
-		let dataArray = data.data.values;
-
-		let data_endCompany = []; //계약종료된 업체
-		let data_company  = []; //계약중인 업체
-
-		THEAD = _getThead(dataArray);
-		KEYS_NUMBER = _findKeyNumber(STRING_NUMBER); //key 0 - 번호
-		KEYS_STATUS = _findKeyNumber(STRING_STATUS); //key 19 - 중단인지 아닌지
-		KEYS_NAME = _findKeyNumber(STRING_NAME); //key 1 - 업체명
-		KEYS_MANAGE = _findKeyNumber(STRING_MANAGE); // 담당자
-		KEYS_ENDCOMPANY = _findKeyNumber(STRING_END_COMPANY_DATE); //관리 종료일 key
-		KEYS_ENDHOSTRING = _findKeyNumber(STRING_END_HOSTRING_DATE); //호스팅 종료일 key
-		KEYS_ENDDOMAIN = _findKeyNumber(STRING_END_DOMAIN_DATE); //도메인 종료일 key
-		KEYS_ETC = _findKeyNumber(STRING_ETC); //비고
-
-		// 데이터 분기
-		(function(){
-			dataArray.map(function(r){
-				if(r[KEYS_NUMBER] != STRING_NUMBER){
-					if(r[KEYS_STATUS] == STRING_STATUS_END){ // 관리상태
-						data_endCompany.push(r);	
-					}else{
-						data_company.push(r);
-					}
-				}
-			});
-		})();
-
-		function _makeDateString(row, KEYS_NAME ,MODIFY_DATA, ERROR_DATA, STRING_DATE ,INPRODUCTION_DATA){
-			let stringDate = row[KEYS_NAME];
-			if(
-				stringDate == '' ||
-				typeof(stringDate) != 'string' ||
-				stringDate == false
-			){
-				MODIFY_DATA.push({
-					target: row,
-					msg: STRINGS.empty,
-					type: STRING_DATE,
-				});
-				return null;
-			}
-
-			let string = stringDate.split('.');
-			
-			if(string[0] && string[1] && string[2]){ // YYYY-MM-DD 형식으로 변경
-				return '20'+string[0]+'-'+string[1]+'-'+string[2];
-			}else{
-				// string 예외처리
-				if(stringDate == STRING_IN_PRODUCTION){ //제작중
-					INPRODUCTION_DATA.push({
-						target: row,
-						type: STRING_DATE,
-					});
-				}
-				
-				if(
-					stringDate != '없음' &&
-					stringDate != '모름' &&
-					stringDate != '병원자체관리' &&
-					stringDate != '가상서버' &&
-					stringDate != '서비스' &&
-					stringDate != STRING_IN_PRODUCTION &&
-					stringDate != '종료시까지'
-				){
-					// 그외 나머지는 ERROR 처리
-					ERROR_DATA.push({
-						target: row,
-						msg: STRINGS.wrong,
-						type: STRING_DATE,
-					});
-				}
-
-			
-				return null;
-			}
-		}
-		
-		function _checkDate(KEYS_NAME,STRING_DATE){
-			const DATA = [];
-			const ERROR_DATA = [];
-			const MODIFY_DATA = [];
-			const INPRODUCTION_DATA = [];
-
-			data_company.map(function(r){
-				let date = _makeDateString(r, KEYS_NAME, MODIFY_DATA, ERROR_DATA, STRING_DATE, INPRODUCTION_DATA);
-				if(date){
-					let today = moment();
-					let endDate = moment(date);
-					// endDate부터 endDate 7일전 날 사이에 today가 포함된다면
-					if( today <= endDate && today >= endDate.subtract(COMPARE_DAYS,'days') ){
-						DATA.push({
-							target: r,
-							value : moment.duration(today.diff(endDate)).asDays()
-						});
-					
-					}else if(today > endDate){ //today가 endDate를 지났을경우
-						MODIFY_DATA.push({
-							target:r,
-							msg: STRINGS.modify,
-							type: STRING_DATE,
-						});
-					}
-				}
-			});
-
-			return {
-				data: DATA, 
-				error: ERROR_DATA,
-				modi: MODIFY_DATA,
-				inproduction: INPRODUCTION_DATA,
-			};
-		}
-
-		let RESULT_DATA = {
-			manage : _checkDate(KEYS_ENDCOMPANY, STRING_END_COMPANY_DATE),
-			domain : _checkDate(KEYS_ENDDOMAIN, STRING_END_DOMAIN_DATE),
-			hosting : _checkDate(KEYS_ENDHOSTRING, STRING_END_HOSTRING_DATE),
-		};
-		console.log(RESULT_DATA)
-		return RESULT_DATA;
 	}
-
-
-	function AND_NOTION(RESULT_DATA){
-		
-		const notion = new Client({ auth: process.env.NOTION_KEY });
-		const DB_DOMAIN = process.env.NOTION_DATABASE_ID_DOMAIN;
-		const DB_HOSTRING = process.env.NOTION_DATABASE_ID_HOSTRING;
-		const DB_ENDCOMPANY = process.env.NOTION_DATABASE_ID_ENDCOMPANY;
-		const DB_INPRODUCTION = process.env.NOTION_DATABASE_ID_INPRODUCTION;
-		const DB_LOG = process.env.NOTION_DATABASE_ID_LOG;
-		const resultData = [];
-		
-		function addItem(data, database_id) {
-			resultData.push({
-				data: data,
-				database_id: database_id,
-			});
-		}
-
-		let today = moment().format('YYYY-MM-DD');
-		
-		function _createTableItem(type, data){
-		
-			function _simpleChangeDateString(stringDate){
-				let string = stringDate.split('.');
-				if(string[0] && string[1] && string[2]){ // check
-					return '20'+string[0]+'-'+string[1]+'-'+string[2];
-				}
-			}
-			
-			let dataItem = data.target;
-			if(type == STRING_END_DOMAIN_DATE){ //도메인 종료
-				return {
-					"알림일": {"type": "date","date": { "start": today }},
-					"작업완료": {  "type": "checkbox", "checkbox": false },
-					"업체명": { "type": "title", "title": [{ "type": "text", "text": { "content": String(dataItem[KEYS_NAME]) } }]},
-					"도메인 만료일": {"type": "date","date": { "start": _simpleChangeDateString(dataItem[KEYS_ENDDOMAIN]) }},
-					"담당자": {"type": "rich_text", "rich_text": [{ "type": "text", "text": { "content": String(dataItem[KEYS_MANAGE]) }}]},
-					"비고": {"type": "rich_text", "rich_text": [{ "type": "text", "text": { "content": String(dataItem[KEYS_ETC]) || '-' }}]},
-				};
-			}
-			if(type == STRING_END_HOSTRING_DATE){ //호스팅 종료
-				return {
-					"알림일": {"type": "date","date": { "start":  today }},
-					"작업완료": {  "type": "checkbox", "checkbox": false },
-					"업체명": { "type": "title", "title": [{ "type": "text", "text": { "content": String(dataItem[KEYS_NAME]) } }]},
-					"호스팅 만료일": {"type": "date","date": { "start": _simpleChangeDateString(dataItem[KEYS_ENDHOSTRING]) }},
-					"담당자": {"type": "rich_text", "rich_text": [{ "type": "text", "text": { "content": String(dataItem[KEYS_MANAGE]) }}]},
-					"비고": {"type": "rich_text", "rich_text": [{ "type": "text", "text": { "content": String(dataItem[KEYS_ETC]) || '-' }}]},
-				}
-			}
-			if(type == STRING_END_COMPANY_DATE){ // 유지보수 종료
-				return {
-					"알림일": {"type": "date","date": { "start":  today }},
-					"작업완료": {  "type": "checkbox", "checkbox": false },
-					"업체명": { "type": "title", "title": [{ "type": "text", "text": { "content": String(dataItem[KEYS_NAME]) } }]},
-					"계약 만료일": {"type": "date","date": { "start": _simpleChangeDateString(dataItem[KEYS_ENDCOMPANY]) || '0000.00.00' }},
-					"담당자": {"type": "rich_text", "rich_text": [{ "type": "text", "text": { "content": String(dataItem[KEYS_MANAGE]) }}]},
-					"비고": {"type": "rich_text", "rich_text": [{ "type": "text", "text": { "content": String(dataItem[KEYS_ETC]) || '-'  }}]},
-				}
-			}
-			if(type == STRING_LOG){ // 
-				let status = '';
-				let color = 'default';
-				if( data.type == STRING_END_DOMAIN_DATE){ status = '도메인 만료';}
-				else if( data.type == STRING_END_HOSTRING_DATE ){ status = '호스팅 만료';}
-				else if( data.type == STRING_END_COMPANY_DATE ){ status = '계약 만료';}
-				return {
-					"알림일": {"type": "date","date": { "start": today }},
-					"작업완료": { "type": "checkbox", "checkbox": false },
-					"상태": { "select": {"name": status}},
-					"업체명": { "type": "title", "title": [{ "type": "text", "text": { "content": String(dataItem[KEYS_NAME]) } }]},
-					"비고": {"type": "rich_text", "rich_text": [{ "type": "text", "text": { "content": String(dataItem[KEYS_ETC]) || '-' }}]},
-					"알림봇 메세지": {"type": "rich_text", "rich_text": [{ "type": "text", "text": { "content": String(data.msg) }}]},
-				}
-			}
-			if(type == STRING_IN_PRODUCTION){
-				return {
-					"알림일": {"type": "date","date": { "start":  today }},
-					"작업완료": {  "type": "checkbox", "checkbox": false },
-					"업체명": { "type": "title", "title": [{ "type": "text", "text": { "content": String(dataItem[KEYS_NAME]) } }]},
-					"담당자": {"type": "rich_text", "rich_text": [{ "type": "text", "text": { "content": String(dataItem[KEYS_MANAGE]) }}]},
-					"비고": {"type": "rich_text", "rich_text": [{ "type": "text", "text": { "content": String(dataItem[KEYS_ETC]) || '-'  }}]},
-				}
-			}
-		}
-		
-		function pushData(datas, stringType, db){
-			datas.map(function(r){
-				addItem(_createTableItem(stringType, r), db);	
-			});
-		}
-		pushData(RESULT_DATA.manage.inproduction, STRING_IN_PRODUCTION, DB_INPRODUCTION);
-		pushData(RESULT_DATA.domain.data, STRING_END_DOMAIN_DATE, DB_DOMAIN);
-		pushData(RESULT_DATA.hosting.data, STRING_END_HOSTRING_DATE, DB_HOSTRING);
-		pushData(RESULT_DATA.manage.data, STRING_END_COMPANY_DATE, DB_ENDCOMPANY);
-
-		// //수정요청 및 에러 데이터
-		//setTimeout(function(){
-			pushData(RESULT_DATA.domain.modi, STRING_LOG, DB_LOG );
-			pushData(RESULT_DATA.domain.error, STRING_LOG, DB_LOG );		
-		//}, 3000);
-		//setTimeout(function(){
-			pushData(RESULT_DATA.hosting.modi, STRING_LOG, DB_LOG );
-			pushData(RESULT_DATA.hosting.error, STRING_LOG, DB_LOG );	
-		//}, 6000);
-		//setTimeout(function(){
-			pushData(RESULT_DATA.manage.modi, STRING_LOG, DB_LOG );
-			pushData(RESULT_DATA.manage.error, STRING_LOG, DB_LOG );		
-		//}, 9000);		
-
-		return resultData;
-	}
+ 
 }

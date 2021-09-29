@@ -5,123 +5,125 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Cansplex alarm system</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapiscom/css2?family=Noto+Sans+KR:wght@100;300;400;500;700;900&display=swap" rel="stylesheet">
-
+    <link rel="stylesheet" href="/css/reset.css">
+    <link rel="stylesheet" href="/css/index.css">
+    <link rel="stylesheet" href="/css/dataTable.css">
+    
     <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment.min.js"></script>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
     
     <script src="//cdn.datatables.net/1.11.3/js/jquery.dataTables.min.js"></script>
-    <link rel="stylesheet" href="//cdn.datatables.net/1.11.3/css/jquery.dataTables.min.css" />
-    
-    <style>
-    html, body{
-        margin:0;
-        padding:0;
-        font-family: 'Noto Sans KR', sans-serif;
-        font-size:16px;
-    }
-    .contents{
-        padding:100px 0;
-    }
-    table {
-        border-collapse: collapse;
-        border-spacing: 0;
-    }
-    .table{
-        border-top:1px solid #333;
-        width:100%;
-    }
-    .table th{
-        background-color:rgb(66, 71, 121);
-        color:#fff;
-    }
-    .table th,
-    .table td{
-        padding:5px;
-        font-size:14px;
-        border-bottom:1px solid #eee;
-    }
-    .wrapper{
-        max-width:1400px;
-        width:90%;
-        margin:0 auto;
-    }
-    .title{
-        font-size:1.5rem;
-        font-weight:600;
-    }
-    .field{
-        margin:30px 0;
-    }
-    
-    .dataTables_info{
-        display:none;
-    }
-    </style>
+    <!-- <link rel="stylesheet" href="//cdn.datatables.net/1.11.3/css/jquery.dataTables.min.css" /> -->
 </head>
 <body>
+    <header>
+        <div class="wrapper">
+            <h1>Cansplex 홈페이지 팀 현황</h1>
+        </div>
+    </header>
+
+    <div class="now-status">
+        <div class="wrapper">
+            <span>유지보수 만료: <b id="s_manage">0</b></span>
+            <span>도메인 만료: <b id="s_domain">0</b></span>
+            <span>호스팅 만료: <b id="s_hosting">0</b></span>
+            <span>제작중: <b id="s_inproduction">0</b></span>
+            <span>Error: <b id="s_error">0</b></span>
+        </div>
+    </div>
+
     <div class="contents">
         <div class="wrapper">
-            <div class="field">
-                <h2 class="title">유지보수 만료</h2>
-                <table class="table table-manage">
-                    <thead>
-                        <tr>
-                            <th>업체명</th>
-                            <th>계약 만료일</th>
-                            <th>담당자</th>
-                            <th>비고</th>
-                        </tr>
-                    </thead>
-                    <tbody id="manage"></tbody>
-                </table>
-            </div>
-            <div class="field">
-                <h2 class="title">도메인 만료</h2>
-                <table class="table table-domain">
-                    <thead>
-                        <tr>
-                            <th>업체명</th>
-                            <th>도메인 만료일</th>
-                            <th>담당자</th>
-                            <th>비고</th>
-                        </tr>
-                    </thead>
-                    <tbody id="domain"></tbody> 
-                </table>
-            </div>
-            <div class="field">
-                <h2 class="title">호스팅 만료</h2>
-                <table class="table table-hosting">
-                    <thead>
-                        <tr>
-                            <th>업체명</th>
-                            <th>호스팅 만료일</th>
-                            <th>담당자</th>
-                            <th>비고</th>
-                        </tr>
-                    </thead>
-                    <tbody id="hosting"></tbody>
-                </table>
-            </div>
-            <div class="field">
-                <h2 class="title">제작중</h2>
-                <table class="table table-inproduction">
-                    <thead>
-                        <tr>
-                            <th>업체명</th>
-                            <th>담당자</th>
-                            <th>비고</th>
-                        </tr>
-                    </thead>
-                    <tbody id="inproduction"></tbody>
-                </table>
-            </div>
-            <div class="field">
-                <h2 class="title">error</h2>
+            
+            <div class="cansplex-table">
+                <div class="field">
+                    <h2 class="title">#유지보수 만료</h2>
+                    <table class="table table-manage">
+                        <colgroup>
+                            <col style="width:20%;">
+                            <col style="width:120px">
+                            <col style="width:15%">
+                            <col>
+                        </colgroup>
+                        <thead>
+                            <tr>
+                                <th>업체명</th>
+                                <th>계약 만료일</th>
+                                <th>담당자</th>
+                                <th>비고</th>
+                            </tr>
+                        </thead>
+                        <tbody id="manage"><tr><td colspan="4"><div class="animation"><div class="anim7"></div></div></td></tr></tbody>
+                    </table>
+                </div>
+                <div class="field">
+                    <h2 class="title">#도메인 만료</h2>
+                    <table class="table table-domain">
+                        <colgroup>
+                            <col style="width:20%;">
+                            <col style="width:130px">
+                            <col style="width:15%">
+                            <col>
+                        </colgroup>
+                        <thead>
+                            <tr>
+                                <th>업체명</th>
+                                <th>도메인 만료일</th>
+                                <th>담당자</th>
+                                <th>비고</th>
+                            </tr>
+                        </thead>
+                        <tbody id="domain"><tr><td colspan="4"><div class="animation"><div class="anim7"></div></div></td></tr></tbody> 
+                    </table>
+                </div>
+                <div class="field">
+                    <h2 class="title">#호스팅 만료</h2>
+                    <table class="table table-hosting">
+                        <colgroup>
+                            <col style="width:20%;">
+                            <col style="width:130px">
+                            <col style="width:15%">
+                            <col>
+                        </colgroup>
+                        <thead>
+                            <tr>
+                                <th>업체명</th>
+                                <th>호스팅 만료일</th>
+                                <th>담당자</th>
+                                <th>비고</th>
+                            </tr>
+                        </thead>
+                        <tbody id="hosting"><tr><td colspan="4"><div class="animation"><div class="anim7"></div></div></td></tr></tbody>
+                    </table>
+                </div>
+                <div class="field">
+                    <h2 class="title">#제작중</h2>
+                    <table class="table table-inproduction">
+                        <colgroup>
+                            <col style="width:20%;">
+                            <col style="width:15%">
+                            <col>
+                        </colgroup>
+                        <thead>
+                            <tr>
+                                <th>업체명</th>
+                                <th>담당자</th>
+                                <th>비고</th>
+                            </tr>
+                        </thead>
+                        <tbody id="inproduction"><tr><td colspan="3"><div class="animation"><div class="anim7"></div></div></td></tr></tbody>
+                    </table>
+                </div>
+                <div class="field">
+                <h2 class="title">#Error</h2>
                 <table class="table table-error">
+                    <colgroup>
+                        <col style="width:120px">
+                        <col style="width:20%;">
+                        <col style="width:120px">
+                        <col>
+                        <col>
+                    </colgroup>
                     <thead>
                         <tr>
                             <th>상태</th>
@@ -131,10 +133,10 @@
                             <th>알림</th>
                         </tr>
                     </thead>
-                    <tbody id="error"></tbody>
+                    <tbody id="error"><tr><td colspan="5"><div class="animation"><div class="anim7"></div></div></td></tr></tbody>
                 </table>
+                </div>
             </div>
-            
         </div>    
     </div>
 
@@ -143,7 +145,7 @@
 
         $(document).ready(function(){
            // createTableHead();
-            getDatas();
+        getDatas();
         });
         function createTableHead(){
             $('.table thead').html(
@@ -345,53 +347,54 @@
         function createTables(RESULT_DATA){
             let today = moment().format('YYYY-MM-DD');
 
-            function addTable(datas, stringType, targetIdString){
+            function addTable(datas, stringType, targetIdString, totalId){
                 var html = '';
                 let tbodyData = [];
                 let finalHtml = '';
+                $(totalId).html(datas.length);
                 datas.map(function(r){
                     
                     let dataItem = r.target;
                     if(stringType == STRING_END_DOMAIN_DATE){ //도메인 종료
                         tbodyData = [
-                            String(dataItem[KEYS_NAME]), 
-                            String(dataItem[KEYS_ENDDOMAIN]), 
-                            String(dataItem[KEYS_MANAGE]), 
+                            `<b>${String(dataItem[KEYS_NAME])}</b>`, 
+                            `<span class="text-center">${String(dataItem[KEYS_ENDDOMAIN])}</span>`, 
+                            `<span class="text-center">${String(dataItem[KEYS_MANAGE])}</span>`, 
                             String(dataItem[KEYS_ETC]),
                         ];
                     }
                     if(stringType == STRING_END_HOSTRING_DATE){ //호스팅 종료
                         tbodyData = [
-                            String(dataItem[KEYS_NAME]), 
-                            String(dataItem[KEYS_ENDHOSTRING]), 
-                            String(dataItem[KEYS_MANAGE]), 
+                            `<b>${String(dataItem[KEYS_NAME])}</b>`, 
+                            `<span class="text-center">${String(dataItem[KEYS_ENDHOSTRING])}</span>`, 
+                            `<span class="text-center">${String(dataItem[KEYS_MANAGE])}</span>`, 
                             String(dataItem[KEYS_ETC]),
                         ];
                     }
                     if(stringType == STRING_END_COMPANY_DATE){ //유지보수 종료
                         tbodyData = [
-                            String(dataItem[KEYS_NAME]), 
-                            String(dataItem[KEYS_ENDCOMPANY]), 
-                            String(dataItem[KEYS_MANAGE]), 
+                            `<b>${String(dataItem[KEYS_NAME])}</b>`, 
+                            `<span class="text-center">${String(dataItem[KEYS_ENDCOMPANY])}</span>`, 
+                            `<span class="text-center">${String(dataItem[KEYS_MANAGE])}</span>`, 
                             String(dataItem[KEYS_ETC]),
                         ];
                     }
                     if(stringType == STRING_LOG){ // ERROR
-                        if( r.type == STRING_END_DOMAIN_DATE){ status = '도메인 만료';}
-                        else if( r.type == STRING_END_HOSTRING_DATE ){ status = '호스팅 만료';}
-                        else if( r.type == STRING_END_COMPANY_DATE ){ status = '계약 만료';}
+                        if( r.type == STRING_END_DOMAIN_DATE){ status = '<span class="label label-domain">도메인 만료</span>';}
+                        else if( r.type == STRING_END_HOSTRING_DATE ){ status = '<span class="label label-hosting">호스팅 만료</span>';}
+                        else if( r.type == STRING_END_COMPANY_DATE ){ status = '<span class="label label-manage">계약 만료</span>';}
                         tbodyData = [
                             status,
-                            String(dataItem[KEYS_NAME]), 
-                            String(dataItem[KEYS_MANAGE]), 
+                            `<b>${String(dataItem[KEYS_NAME])}</b>`, 
+                            `<span class="text-center">${String(dataItem[KEYS_MANAGE])}</span>`, 
                             String(dataItem[KEYS_ETC]),
                             String(r.msg)
                         ];
                     }
                     if(stringType == STRING_IN_PRODUCTION){ //제작중
                         tbodyData = [
-                            String(dataItem[KEYS_NAME]), 
-                            String(dataItem[KEYS_MANAGE]), 
+                            `<b>${String(dataItem[KEYS_NAME])}</b>`, 
+                            `<span class="text-center">${String(dataItem[KEYS_MANAGE])}</span>`,  
                             String(dataItem[KEYS_ETC]),
                         ];
                     }
@@ -408,10 +411,10 @@
                 $(targetIdString).html(finalHtml);
             }
 
-            addTable(RESULT_DATA.domain.data, STRING_END_DOMAIN_DATE, '#domain');
-            addTable(RESULT_DATA.hosting.data, STRING_END_HOSTRING_DATE, '#hosting');
-            addTable( RESULT_DATA.manage.data, STRING_END_COMPANY_DATE, '#manage');
-            addTable( RESULT_DATA.manage.inproduction, STRING_IN_PRODUCTION, '#inproduction');
+            addTable(RESULT_DATA.domain.data, STRING_END_DOMAIN_DATE, '#domain', '#s_domain');
+            addTable(RESULT_DATA.hosting.data, STRING_END_HOSTRING_DATE, '#hosting', '#s_hosting');
+            addTable( RESULT_DATA.manage.data, STRING_END_COMPANY_DATE, '#manage', '#s_manage');
+            addTable( RESULT_DATA.manage.inproduction, STRING_IN_PRODUCTION, '#inproduction', '#s_inproduction');
             
             
 			let errorDatas = [
@@ -423,7 +426,7 @@
 			    ...RESULT_DATA.manage.error
             ];
             
-            addTable( errorDatas, STRING_LOG, '#error');
+            addTable( errorDatas, STRING_LOG, '#error', '#s_error');
         }
         
     </script>
