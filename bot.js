@@ -113,6 +113,7 @@ function botEvent(callback){
 		const opt = { spreadsheetId, range, };
 		let data = await gsapi.spreadsheets.values.get(opt);
 		return data;
+
 		let dataArray = data.data.values;
 
 		let data_endCompany = []; //계약종료된 업체
@@ -252,19 +253,6 @@ function botEvent(callback){
 				data: data,
 				database_id: database_id,
 			});
-			// try {
-			// 	await notion.request({
-			// 		path: "pages",
-			// 		method: "POST",
-			// 		body: {
-			// 			parent: { database_id },
-			// 			properties: data,
-			// 		},
-			// 	})
-			// 	console.log("Success! Entry added.")
-			// } catch (error) {
-			// 	console.error(error.body, data);
-			// }
 		}
 
 		let today = moment().format('YYYY-MM-DD');

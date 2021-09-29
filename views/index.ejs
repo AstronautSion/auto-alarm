@@ -160,11 +160,8 @@
                 url: '/addEvent',
                 dataType: 'json',
                 success: function(result){
-                    // console.log(result);
                     organizeData(result);
                     $('.table').DataTable();
-                    //createTables(result);
-                    
                 },
                 error: function(error){
                     console.error(error);
@@ -405,7 +402,7 @@
                     finalHtml += '<tr>';
                     data.map((v)=>{finalHtml +=`<td>${v}</td>`;});
                     finalHtml += '</tr>';
-                    console.log(finalHtml);
+                    
                 }
                 
                 $(targetIdString).html(finalHtml);
@@ -425,10 +422,8 @@
 			    ...RESULT_DATA.manage.modi,
 			    ...RESULT_DATA.manage.error
             ];
-            console.log(errorDatas);
+            
             addTable( errorDatas, STRING_LOG, '#error');
-           
-            // addTable(  , STRING_IN_PRODUCTION, '#inproduction');
         }
         
     </script>
