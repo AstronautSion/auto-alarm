@@ -219,7 +219,9 @@
                 success: function(resultData){
                     ALLDATA = resultData?.data?.values;
                     organizeData(resultData);
-                    $('.table').DataTable();
+                    $('.table').DataTable({
+                        lengthMenu: [20, 50, 100, 200, 500],
+                    });
 
                     $('[data-pk]').on('click', function(){
                         $('html, body').css({overflow:'hidden'});
