@@ -88,6 +88,14 @@ header h1{
     font-size:13px;
     font-weight:600;
 }
+.now-status strong{
+    display:inline-block;
+    padding:.35em .5em;
+    background-color:rgb(238, 62, 62);
+    color:#fff;
+    font-size:14px;
+    border-radius: 5px;
+}
 
 
 /* loading  */
@@ -220,4 +228,22 @@ header h1{
     font-weight:300;
     width:80%;
     color:#111;
+  }
+
+  .warning{
+      font-size:12px;
+      padding:2em 1em;
+      border:1px solid rgba(232, 109, 109, .3);
+      box-sizing:border-box;
+      background-color:rgba(232, 109, 109,.2);
+      border-radius: 5px;
+      font-weight:300;
+      line-height:1.4;
+      color:#111;
+      margin-bottom:1em;
+  }
+
+  .warning b{
+      font-size:12px;
+      font-weight:600;
   }

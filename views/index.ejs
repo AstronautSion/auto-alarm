@@ -24,6 +24,7 @@
 
     <div class="now-status">
         <div class="wrapper">
+            <strong>TODAY : <b id="today"></b></strong>
             <span>유지보수 만료: <b id="s_manage">0</b></span>
             <span>도메인 만료: <b id="s_domain">0</b></span>
             <span>호스팅 만료: <b id="s_hosting">0</b></span>
@@ -34,7 +35,8 @@
 
     <div class="contents">
         <div class="wrapper">
-            
+            <p class="warning">해당 페이지는 <b>[ 2020년 영상웹 계약 현황 ]</b> 구글 스프레드시트의 <b>[ 홈페이지 관리 ]</b> 시트와 연동되어 있습니다.<br>
+                구글 스프레드시트를 조건에 맞지 않게 수정 할 경우 해당 프로그램이 제대로 작동하지 않을 수 있으니 주의해주세요.  </p>
             <div class="cansplex-table">
                 <div class="field">
                     <h2 class="title">#유지보수 만료</h2>
@@ -116,6 +118,7 @@
                 </div>
                 <div class="field">
                 <h2 class="title">#Error</h2>
+                <p class="warning">아래 테이블 내용은 구글 스프레드시트에서 수정이 필요하거나  값을 잘못넣었을 경우 발생하는 에러입니다. 구글 스프레드시트를 올바르게 수정해주세요.</p>
                 <table class="table table-error">
                     <colgroup>
                         <col style="width:120px">
@@ -155,7 +158,9 @@
 
 
         $(document).ready(function(){
-           
+            getTimes('LL', function(time){
+                $('#today').html(time);
+            });
             getDatas();
         });
       
@@ -191,7 +196,20 @@
         let KEYS_ENDDOMAIN = null;
         let KEYS_ETC = null;
 
-   
+        function getTimes(formatString, callback){
+            $.ajax({
+                type:'GET',
+                url: '/getTime',
+                dataType: 'json',
+                data: {data: formatString},
+                success: function(resultData){
+                    callback(resultData?.data);
+                },
+                error: function(error){
+                    console.error(error);
+                }
+            });
+        }
 
         function getDatas(){
             $.ajax({
@@ -214,8 +232,6 @@
                 }
             });
         }
-
-
 
         function _findKeyNumber(string){
             let returnVal = null;
@@ -357,8 +373,17 @@
             createTables(RESULT_DATA);
         }
 
+        function _changeDate(dates){
+            let resultDate = '';
+            if( dates ){
+                let datesSplit = dates.split('.');
+                if(Number(datesSplit[1]) < 10){ datesSplit[1] = '0'+Number(datesSplit[1]); }
+                if(Number(datesSplit[2]) < 10){ datesSplit[2] = '0'+Number(datesSplit[2]); }
+                return resultDate = `20${datesSplit[0]}-${datesSplit[1]}-${datesSplit[2]}`;
+            }
+        }
+
         function createTables(RESULT_DATA){
-            let today = moment().format('YYYY-MM-DD');
 
             function addTable(datas, stringType, targetIdString, totalId){
                 var html = '';
@@ -370,17 +395,19 @@
                     let dataItem = r.target;
                     const pk = dataItem[0];
                     if(stringType == STRING_END_DOMAIN_DATE){ //도메인 종료
+
                         tbodyData = [
                             `<b>${String(dataItem[KEYS_NAME])}</b>`, 
-                            `<span class="text-center">${String(dataItem[KEYS_ENDDOMAIN])}</span>`, 
+                            `<span class="text-center">${_changeDate(String(dataItem[KEYS_ENDDOMAIN]))}</span>`, 
                             `<span class="text-center">${String(dataItem[KEYS_MANAGE])}</span>`, 
                             String(dataItem[KEYS_ETC]),
                         ];
                     }
                     if(stringType == STRING_END_HOSTRING_DATE){ //호스팅 종료
+
                         tbodyData = [
                             `<b>${String(dataItem[KEYS_NAME])}</b>`, 
-                            `<span class="text-center">${String(dataItem[KEYS_ENDHOSTRING])}</span>`, 
+                            `<span class="text-center">${_changeDate(String(dataItem[KEYS_ENDHOSTRING]))}</span>`, 
                             `<span class="text-center">${String(dataItem[KEYS_MANAGE])}</span>`, 
                             String(dataItem[KEYS_ETC]),
                         ];
@@ -388,7 +415,7 @@
                     if(stringType == STRING_END_COMPANY_DATE){ //유지보수 종료
                         tbodyData = [
                             `<b>${String(dataItem[KEYS_NAME])}</b>`, 
-                            `<span class="text-center">${String(dataItem[KEYS_ENDCOMPANY])}</span>`, 
+                            `<span class="text-center">${_changeDate(String(dataItem[KEYS_ENDCOMPANY]))}</span>`, 
                             `<span class="text-center">${String(dataItem[KEYS_MANAGE])}</span>`, 
                             String(dataItem[KEYS_ETC]),
                         ];
@@ -420,7 +447,6 @@
                     finalHtml += '<tr data-pk="'+pk+'">';
                     data.map((v)=>{finalHtml +=`<td>${v}</td>`;});
                     finalHtml += '</tr>';
-                    
                 }
                 
                 $(targetIdString).html(finalHtml);
@@ -444,8 +470,8 @@
             addTable( errorDatas, STRING_LOG, '#error', '#s_error');
         }
     </script>
-    <script>
 
+    <script>
         function showPopup(pk){
             const $target = $('.popup__container');
             let theadData = ['번호','업체명','담당자','유형','계약일자','제작완료일','유료관리 시작일','관리 종료일','호스팅 만료일','도메인 만료일','SSL인증서 만료일','관리유형','월관리비','현재 관리개월','연관리비','현재 계약 총액','누적 관리개월','누적 계약 총액','입금액','관리상태','비고'];
@@ -456,14 +482,24 @@
                 }
             });
 
-
-
             function _createPopupDom(theadData, targetData){
                 let contDom = '';
                 theadData.map((v, k) => {
+
+                    let times = targetData[k];
+
+                    if(k == 4 || k == 5 || k == 6 || k == 7 || k == 8 || k == 9|| k == 10){
+                        if( targetData[k] ){
+                            times = _changeDate(targetData[k]);
+                        }else{
+                            times = '';
+                        }
+                        
+                    }
+
                     contDom += `<div class="popup__field">
                         <label class="popup__label">${v}</label>
-                        <div class="popup__desc">${targetData[k]}</div>
+                        <div class="popup__desc">${times}</div>
                     </div>`
                 });
                 return contDom;
@@ -475,8 +511,7 @@
                 $('html, body').css({overflow:'visible'});
                 $('.popup__container').html('');
                 $('.popup').hide();
-            })
-
+            });
         }
 
     </script>

@@ -9,6 +9,7 @@ const ip = require('request-ip');
 
 dotenv.config();
 // console.log('time:', moment().format('YYYY-MM-DD hh:mm:ss'));
+moment.locale('ko');
 const express = require('express');
 const app = express();
 const port = process.env.PORT || 3000;
@@ -33,16 +34,36 @@ app.get('/', (req, res) => {
 });
 
 app.get('/addEvent', (req, res) => {
-
-
 	if(checkIp(req)){
 		botEvent(function(data){
-			res.json({data });
+			res.json({data});
 		});
 	}else{
-		res.json({msg: '외부 IP 차단.'})
+		res.render('Forbidden');
 	}
 });
+
+app.get('/getTime', (req, res) => {
+	if(checkIp(req)){
+		let format = req.query?.data || '';
+		let today = moment().format(format);
+	
+		res.json({data: today });
+	}else{
+		res.render('Forbidden');
+	}
+});
+
+app.get('/getForDays', (req, res) => {
+	if(checkIp(req)){
+		let times = req.query?.data || '';
+		let format = req.query?.format || '';
+		let days = moment(times, format).fromNow();
+		res.json({data: days });
+	}else{
+		res.render('Forbidden');
+	}
+})
 
 // '0,0,0,0' IPV4 setting
 app.listen(port, '0.0.0.0', () => console.log(`Example app listening on port ${port}`));
