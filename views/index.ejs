@@ -150,7 +150,6 @@
                 <div class="popup__cont">
                     <div class="popup__container"></div>
                 </div>
-                <div class="popup-close"></div>
             </div>
         </div>
     </div>
@@ -505,13 +504,17 @@
                 });
                 return contDom;
             }
-            $target.parents('.popup').show();
+            $target.parents('.popup').fadeIn(200);
             $target.html(_createPopupDom(theadData, targetData));
 
-            $('.popup-close').on('click', function(){
-                $('html, body').css({overflow:'visible'});
-                $('.popup__container').html('');
-                $('.popup').hide();
+
+            $('.popup').on('click', function(e){
+                $t = $(e.target);
+                if( !$t.hasClass('popup__cont') && !$t.parents().is('.popup__cont') ){
+                    $('html, body').css({overflow:'visible'});
+                    $('.popup__container').html('');
+                    $('.popup').fadeOut(200);
+                }
             });
         }
 
