@@ -140,38 +140,26 @@
         </div>    
     </div>
 
+    <div class="popup">
+        <div class="popup__overlay">
+            <div class="popup__inner">
+                <div class="popup__cont">
+                    <div class="popup__container"></div>
+                </div>
+                <div class="popup-close"></div>
+            </div>
+        </div>
+    </div>
+
     <script>
 
 
         $(document).ready(function(){
-           // createTableHead();
-        getDatas();
+           
+            getDatas();
         });
-        function createTableHead(){
-            $('.table thead').html(
-            `<th>번호</th><th>업체명</th><th>담당자</th><th>유형</th><th>계약일자</th>
-            <th>제작완료일</th><th>유료관리 시작일</th><th>관리 종료일</th><th>호스팅 만료일</th><th>도메인 만료일</th>
-            <th>SSL인증서 만료일</th><th>관리유형</th><th>월관리비</th><th>현재 관리개월</th><th>연관리비</th>
-            <th>현재 계약 총액</th><th>누적 관리개월</th><th>누적 계약 총액</th><th>입금액</th><th>관리상태</th>
-            <th>비고</th>`);
-        }
-
-        function getDatas(){
-            $.ajax({
-                type:'GET',
-                url: '/addEvent',
-                dataType: 'json',
-                success: function(result){
-                    organizeData(result);
-                    $('.table').DataTable();
-                },
-                error: function(error){
-                    console.error(error);
-                }
-            });
-        }
-
-
+      
+        let ALLDATA = [];
         // init datas
         const COMPARE_DAYS = 30; //비교날짜 (한달)
 
@@ -203,7 +191,32 @@
         let KEYS_ENDDOMAIN = null;
         let KEYS_ETC = null;
 
-            
+   
+
+        function getDatas(){
+            $.ajax({
+                type:'GET',
+                url: '/addEvent',
+                dataType: 'json',
+                success: function(resultData){
+                    ALLDATA = resultData?.data?.values;
+                    organizeData(resultData);
+                    $('.table').DataTable();
+
+                    $('[data-pk]').on('click', function(){
+                        $('html, body').css({overflow:'hidden'});
+                        showPopup($(this).data('pk'));
+                    });
+
+                },
+                error: function(error){
+                    console.error(error);
+                }
+            });
+        }
+
+
+
         function _findKeyNumber(string){
             let returnVal = null;
             THEAD.map(function(r,i){ 
@@ -355,6 +368,7 @@
                 datas.map(function(r){
                     
                     let dataItem = r.target;
+                    const pk = dataItem[0];
                     if(stringType == STRING_END_DOMAIN_DATE){ //도메인 종료
                         tbodyData = [
                             `<b>${String(dataItem[KEYS_NAME])}</b>`, 
@@ -398,11 +412,12 @@
                             String(dataItem[KEYS_ETC]),
                         ];
                     }
-                    createTbody(tbodyData);
+
+                    createTbody(tbodyData, pk);
                 });
 
-                function createTbody(data){
-                    finalHtml += '<tr>';
+                function createTbody(data, pk){
+                    finalHtml += '<tr data-pk="'+pk+'">';
                     data.map((v)=>{finalHtml +=`<td>${v}</td>`;});
                     finalHtml += '</tr>';
                     
@@ -428,7 +443,42 @@
             
             addTable( errorDatas, STRING_LOG, '#error', '#s_error');
         }
-        
+    </script>
+    <script>
+
+        function showPopup(pk){
+            const $target = $('.popup__container');
+            let theadData = ['번호','업체명','담당자','유형','계약일자','제작완료일','유료관리 시작일','관리 종료일','호스팅 만료일','도메인 만료일','SSL인증서 만료일','관리유형','월관리비','현재 관리개월','연관리비','현재 계약 총액','누적 관리개월','누적 계약 총액','입금액','관리상태','비고'];
+            let targetData = [];
+            ALLDATA.map((v) => {
+                if(v[0] == pk){
+                    targetData = [...v];
+                }
+            });
+
+
+
+            function _createPopupDom(theadData, targetData){
+                let contDom = '';
+                theadData.map((v, k) => {
+                    contDom += `<div class="popup__field">
+                        <label class="popup__label">${v}</label>
+                        <div class="popup__desc">${targetData[k]}</div>
+                    </div>`
+                });
+                return contDom;
+            }
+            $target.parents('.popup').show();
+            $target.html(_createPopupDom(theadData, targetData));
+
+            $('.popup-close').on('click', function(){
+                $('html, body').css({overflow:'visible'});
+                $('.popup__container').html('');
+                $('.popup').hide();
+            })
+
+        }
+
     </script>
 </body>
 </html>
