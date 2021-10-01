@@ -251,6 +251,27 @@
             return arr;
         }
 
+        function _changeDate(dates, callback){
+            let resultDate = '';
+
+            let datesSplit = dates?.split('.');
+            if( 
+                datesSplit.length == 3 &&
+                ( !isNaN(Number(datesSplit[0])) && typeof(Number(datesSplit[0])) == 'number' ) &&
+                ( !isNaN(Number(datesSplit[1])) && typeof(Number(datesSplit[1])) == 'number') &&
+                ( !isNaN(Number(datesSplit[2])) && typeof(Number(datesSplit[2])) == 'number')
+
+            ){
+                if(Number(datesSplit[1]) < 10){ datesSplit[1] = '0'+Number(datesSplit[1]); }
+                if(Number(datesSplit[2]) < 10){ datesSplit[2] = '0'+Number(datesSplit[2]); }
+                return resultDate = `20${datesSplit[0]}-${datesSplit[1]}-${datesSplit[2]}`;
+            }else{
+                if(callback){
+                    callback(dates);
+                }
+            }
+        }
+
         function organizeData(data){
             let dataArray = data.data.values;
 
@@ -282,6 +303,7 @@
 
             function _makeDateString(row, KEYS_NAME ,MODIFY_DATA, ERROR_DATA, STRING_DATE ,INPRODUCTION_DATA){
                 let stringDate = row[KEYS_NAME];
+                
                 if(
                     stringDate == '' ||
                     typeof(stringDate) != 'string' ||
@@ -295,12 +317,7 @@
                     return null;
                 }
 
-                let string = stringDate.split('.');
-                
-                if(string[0] && string[1] && string[2]){ // YYYY-MM-DD 형식으로 변경
-                    return '20'+string[0]+'-'+string[1]+'-'+string[2];
-                }else{
-                    // string 예외처리
+                return _changeDate(stringDate, function(dates){
                     if(stringDate == STRING_IN_PRODUCTION){ //제작중
                         INPRODUCTION_DATA.push({
                             target: row,
@@ -308,26 +325,23 @@
                         });
                     }
                     
-                    if(
-                        stringDate != '없음' &&
-                        stringDate != '모름' &&
-                        stringDate != '병원자체관리' &&
-                        stringDate != '가상서버' &&
-                        stringDate != '서비스' &&
-                        stringDate != STRING_IN_PRODUCTION &&
-                        stringDate != '종료시까지'
-                    ){
-                        // 그외 나머지는 ERROR 처리
+                    if($.trim(stringDate) == ''){
+                        // 데이터가 비어있을 경우엔 error
                         ERROR_DATA.push({
                             target: row,
                             msg: STRINGS.wrong,
                             type: STRING_DATE,
                         });
                     }
-
-                
                     return null;
-                }
+                })
+
+                // if(string[0] && string[1] && string[2]){ // YYYY-MM-DD 형식으로 변경
+                //     return '20'+string[0]+'-'+string[1]+'-'+string[2];
+                // }else{
+                //     // string 예외처리
+                    
+                // }
             }
 
             function _checkDate(KEYS_NAME,STRING_DATE){
@@ -341,7 +355,7 @@
                     if(date){
                         let today = moment();
                         let endDate = moment(date);
-                        // endDate부터 endDate 7일전 날 사이에 today가 포함된다면
+                        // endDate부터 COMPARE_DAYS 기간 사이에 today가 포함된다면
                         if( today <= endDate && today >= endDate.subtract(COMPARE_DAYS,'days') ){
                             DATA.push({
                                 target: r,
@@ -375,16 +389,6 @@
             createTables(RESULT_DATA);
         }
 
-        function _changeDate(dates){
-            let resultDate = '';
-            if( dates ){
-                let datesSplit = dates.split('.');
-                if(Number(datesSplit[1]) < 10){ datesSplit[1] = '0'+Number(datesSplit[1]); }
-                if(Number(datesSplit[2]) < 10){ datesSplit[2] = '0'+Number(datesSplit[2]); }
-                return resultDate = `20${datesSplit[0]}-${datesSplit[1]}-${datesSplit[2]}`;
-            }
-        }
-
         function createTables(RESULT_DATA){
 
             function addTable(datas, stringType, targetIdString, totalId){
@@ -397,27 +401,28 @@
                     let dataItem = r.target;
                     const pk = dataItem[0];
                     if(stringType == STRING_END_DOMAIN_DATE){ //도메인 종료
-
+                        let domainDate = _changeDate(String(dataItem[KEYS_ENDDOMAIN]));
                         tbodyData = [
                             `<b>${String(dataItem[KEYS_NAME])}</b>`, 
-                            `<span class="text-center">${_changeDate(String(dataItem[KEYS_ENDDOMAIN]))}</span>`, 
+                            `<span class="text-center">${domainDate}</span>`, 
                             `<span class="text-center">${String(dataItem[KEYS_MANAGE])}</span>`, 
                             String(dataItem[KEYS_ETC]),
                         ];
                     }
                     if(stringType == STRING_END_HOSTRING_DATE){ //호스팅 종료
-
+                        let hostingDate = _changeDate(String(dataItem[KEYS_ENDHOSTRING]));
                         tbodyData = [
                             `<b>${String(dataItem[KEYS_NAME])}</b>`, 
-                            `<span class="text-center">${_changeDate(String(dataItem[KEYS_ENDHOSTRING]))}</span>`, 
+                            `<span class="text-center">${hostingDate}</span>`, 
                             `<span class="text-center">${String(dataItem[KEYS_MANAGE])}</span>`, 
                             String(dataItem[KEYS_ETC]),
                         ];
                     }
                     if(stringType == STRING_END_COMPANY_DATE){ //유지보수 종료
+                        let manangeDate = _changeDate(String(dataItem[KEYS_ENDCOMPANY]));
                         tbodyData = [
                             `<b>${String(dataItem[KEYS_NAME])}</b>`, 
-                            `<span class="text-center">${_changeDate(String(dataItem[KEYS_ENDCOMPANY]))}</span>`, 
+                            `<span class="text-center">${manangeDate}</span>`, 
                             `<span class="text-center">${String(dataItem[KEYS_MANAGE])}</span>`, 
                             String(dataItem[KEYS_ETC]),
                         ];
@@ -459,7 +464,6 @@
             addTable( RESULT_DATA.manage.data, STRING_END_COMPANY_DATE, '#manage', '#s_manage');
             addTable( RESULT_DATA.manage.inproduction, STRING_IN_PRODUCTION, '#inproduction', '#s_inproduction');
             
-            
 			let errorDatas = [
                 ...RESULT_DATA.domain.modi,
 			    ...RESULT_DATA.domain.error,
@@ -490,13 +494,14 @@
 
                     let times = targetData[k];
 
-                    if(k == 4 || k == 5 || k == 6 || k == 7 || k == 8 || k == 9|| k == 10){
-                        if( targetData[k] ){
-                            times = _changeDate(targetData[k]);
-                        }else{
+                    if(k == 4 || k == 5 || k == 6 || k == 7 || k == 8 || k == 9|| k == 10){ // YY.MM.DD 형식인곳
+                        if( $.trim(targetData[k]) == ''){ //빈값인 경우
                             times = '';
+                        }else if(targetData[k].split('.').length == 3){ // 날짜형식인경우
+                            times = _changeDate(targetData[k])
+                        }else{ //그외 string
+                            times = targetData[k];
                         }
-                        
                     }
 
                     contDom += `<div class="popup__field">
